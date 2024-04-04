@@ -1,0 +1,48 @@
+[Network]
+  # Binding address for the Lotus API
+  #
+  # type: string
+  # env var: LOTUS_API_LISTENADDRESS
+  ListenAddress = "/ip4/127.0.0.1/tcp/1234/http"
+
+  # type: Duration
+  # env var: LOTUS_API_TIMEOUT
+  #Timeout = "30s"
+  
+#   WebServerURL = "http://120.79.221.36:10089/api/v2/device"
+#   LocatorURL = "https://test.titannet.io:5000/rpc/v0"
+#   NodeInfoURL = "http://120.79.221.36:10090/nodeidDetail?device_id="
+  WebServerURL = "https://api-test1.container1.titannet.io/api/v2/device" 
+  NodeInfoURL = "https://test1.titannet.io/nodeidDetail?device_id="
+  LocatorURL = "https://test-locator.titannet.io:5000/rpc/v0" 
+  TelegeramURL = "https://t.me/titannet_dao"
+  TwitterURL = "https://twitter.com/Titannet_dao"
+  BindingHelpURL ="https://titannet.gitbook.io/titan/huygens-testnet/an-zhuang-cheng-xu-zhuan-qu/bang-ding-shen-fen-ma"
+
+[Bandwidth]
+  BandwidthMB = 10
+  Min = 10
+  Max = 200
+  Step = 10
+
+[Storage]
+  StorageGB = 2
+  Min = 2
+  Max = 2048
+  Step = 2
+  Path="./storage"
+
+[Memory]
+  MemoryGB = 1
+  Min = 1
+  Max = 32
+  Step = 1
+
+[CPU]
+  Cores = 1
+  Min = 1
+  Max = 16
+  Step = 1
+
+[Basic]
+   Token=""
