@@ -31,7 +31,8 @@ class _WalletBindingPageState extends State<WalletBindingPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      BridgeMgr().minerBridge.minerInfo.addListener("account", "page_binding", () {
+      BridgeMgr().minerBridge.minerInfo.addListener("account", "page_binding",
+          () {
         setState(() {});
       });
     });
@@ -48,16 +49,18 @@ class _WalletBindingPageState extends State<WalletBindingPage> {
       ),
       body: SingleChildScrollView(
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 30.h),
-            child: !isBinded ? Column(
-              children: [
-                _getIdentityCode(context),
-                const SizedBox(
-                  height: 23,
-                ),
-                _inputIdentityCode(context)
-              ],
-            ) : _bindedView(),
+        margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 30.h),
+        child: !isBinded
+            ? Column(
+                children: [
+                  _getIdentityCode(context),
+                  const SizedBox(
+                    height: 23,
+                  ),
+                  _inputIdentityCode(context)
+                ],
+              )
+            : _bindedView(),
       )),
     );
   }
@@ -125,17 +128,19 @@ class _WalletBindingPageState extends State<WalletBindingPage> {
     String nodeSign = "";
     getInfoCallback(String account, String address, int code) {
       if (code != 0) {
-        // Indicators.showMessage(context, Lang().dict.bindingError,
-        //     ErrorCode.getErrorMessage(code), null, null);
+        Indicators.showMessage(context, Lang().dict.bindingError,
+            ErrorCode.getErrorMessage(code), null, null);
       } else {
         WalletConfirmDialog().show(
           context1,
-          account, address,
+          account,
+          address,
           onConfirm: () async {
-            await BridgeMgr().minerBridge.bindingAccount(bindingCode, nodeSign, (int code) {
+            await BridgeMgr().minerBridge.bindingAccount(bindingCode, nodeSign,
+                (int code) {
               if (code != 0) {
-                // Indicators.showMessage(context, Lang().dict.bindingError,
-                //     ErrorCode.getErrorMessage(code), null, null);
+                Indicators.showMessage(context, Lang().dict.bindingError,
+                    ErrorCode.getErrorMessage(code), null, null);
               } else {
                 BridgeMgr().minerBridge.minerInfo.account = account;
                 BridgeMgr().minerBridge.minerInfo.address = address;
@@ -148,9 +153,18 @@ class _WalletBindingPageState extends State<WalletBindingPage> {
         );
       }
     }
+
     BridgeMgr().daemonBridge.sign(bindingCode).whenComplete(() {}).then((sign) {
-      var signature = json.decode(sign)['data'];
-      nodeSign = json.decode(signature)['signature'];
+      var signature = json.decode(sign);
+      if (signature['code'] != 0) {
+        var msg = signature['msg'];
+        Indicators.showMessage(
+            context, Lang().dict.bindingError, msg, null, null);
+        return;
+      }
+
+      var data = json.decode(sign)['data'];
+      nodeSign = json.decode(data)['signature'];
       BridgeMgr().minerBridge.getAccountInfo(bindingCode, getInfoCallback);
     }, onError: (e) {
       Indicators.showMessage(context, Lang().dict.bindingError, e, null, null);
@@ -222,8 +236,8 @@ class _WalletBindingPageState extends State<WalletBindingPage> {
     return Container(
         padding: const EdgeInsets.all(16), // 设置内边距
         decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: AppDarkColors.inputBackgroundColor),
+            borderRadius: BorderRadius.circular(8),
+            color: AppDarkColors.inputBackgroundColor),
         child: SizedBox(
           width: 1.sw,
           child: Column(
@@ -314,7 +328,7 @@ class _WalletBindingPageState extends State<WalletBindingPage> {
               ),
             ],
           ),
-    ));
+        ));
   }
 
   @override
