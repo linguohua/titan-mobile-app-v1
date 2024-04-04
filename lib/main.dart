@@ -10,6 +10,7 @@ import 'package:titan_app/pages/setting/setting_page.dart';
 import 'package:titan_app/pages/wallet/wallet_binding_page.dart';
 import 'package:titan_app/providers/auth_provider.dart';
 import 'package:titan_app/providers/localization_provider.dart';
+import 'package:titan_app/providers/version_provider.dart';
 import 'package:titan_app/themes/system_ui_overlay_style.dart';
 import 'package:titan_app/themes/theme_data.dart';
 import 'package:titan_app/widgets/tab_bottom_bar.dart';
@@ -58,6 +59,7 @@ class _AppHomePageState extends State<AppHomePage> {
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => LocalizationProvider()),
+        ChangeNotifierProvider(create: (context) => VersionProvider()),
       ],
       child: Consumer2<AuthProvider, LocalizationProvider>(
         builder: (context, auth, localization, _) {
