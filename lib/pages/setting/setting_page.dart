@@ -4,13 +4,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:titan_app/pages/setting/setting_about_page.dart';
 import 'package:titan_app/providers/localization_provider.dart';
 import 'package:titan_app/providers/version_provider.dart';
 import 'package:titan_app/themes/colors.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
 import '../../generated/l10n.dart';
 import '../../widgets/common_text_widget.dart';
@@ -25,16 +25,29 @@ class SettingPage extends StatefulWidget {
 class _SettingPageState extends State<SettingPage> {
   bool isAutoUpdate = true;
   bool isLatestVersion = true;
+  late Timer timer;
   // final version = "v1.0.1";
 
   @override
   void initState() {
     super.initState();
     _getVersion(context);
+
+    timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) {
+      _getVersion(context);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // var oV = Provider.of<VersionProvider>(context, listen: true).oldVersion;
+    // var nV = Provider.of<VersionProvider>(context, listen: true).version;
+
+    // isLatestVersion = oV == nV;
+
+    isLatestVersion =
+        Provider.of<VersionProvider>(context, listen: true).isLatestVersion;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -80,7 +93,8 @@ class _SettingPageState extends State<SettingPage> {
                   height: 18,
                 ),
                 Text(
-                  Provider.of<VersionProvider>(context, listen: true).version,
+                  Provider.of<VersionProvider>(context, listen: true)
+                      .oldVersion,
                   style: const TextStyle(color: AppDarkColors.grayColor),
                 ),
                 null),
@@ -240,6 +254,9 @@ class _SettingPageState extends State<SettingPage> {
                   minimumSize: const Size(315, 48),
                 ),
                 onPressed: () async {
+                  if (isLatestVersion) {
+                    return;
+                  }
                   String url =
                       Provider.of<VersionProvider>(context, listen: false).url;
                   if (!await launchUrl(Uri.parse(url))) {
