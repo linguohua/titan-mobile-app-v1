@@ -6,10 +6,11 @@ class VersionProvider extends ChangeNotifier {
   String _oldVersion = '';
   String desc = '';
   String url = '';
+  String _newVersion = '';
   String get version => _version;
   String get oldVersion => _oldVersion;
 
-  bool get isLatestVersion => _version == _oldVersion;
+  bool get isLatestVersion => _newVersion == _oldVersion;
 
   VersionProvider() {
     _loadVersionInfo();
@@ -20,13 +21,20 @@ class VersionProvider extends ChangeNotifier {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     // _oldVersion = prefs.getString('version') ?? packageInfo.version;
     _oldVersion = packageInfo.version;
+
     notifyListeners();
   }
 
   setVersion(String val, String description, String urlVal) async {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     // prefs.setString('version', val);
+
     _version = val;
+    _newVersion = val;
+    if (val.contains('v') || val.contains('V')) {
+      _newVersion = val.substring(1);
+    }
+
     desc = description;
     url = urlVal;
     notifyListeners();
