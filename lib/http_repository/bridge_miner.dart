@@ -29,6 +29,12 @@ class MinerBridge {
   MinerInfo get minerInfo => _info;
   String get appVersion => _appVersion;
 
+  void setNodeInfo(String id, areaID) {
+    print('info set $id');
+    _id = id;
+    _areaID = areaID;
+  }
+
   void init(DaemonCfgs daemonCfgs, String appVersion) {
     _id = daemonCfgs.id();
     _token = daemonCfgs.token();

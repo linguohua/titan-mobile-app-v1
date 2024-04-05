@@ -386,9 +386,15 @@ class _HomePageState extends State<HomePage>
       // if (jsonResult["Counter"] != daemonCounter) {
       //   daemonCounter = jsonResult["Counter"];
       // }
+
+      if (BridgeMgr().daemonBridge.daemonCfgs.id() == "") {
+        await BridgeMgr().daemonBridge.loadDaemonConfig();
+
+        var cfg = BridgeMgr().daemonBridge.daemonCfgs;
+        BridgeMgr().minerBridge.setNodeInfo(cfg.id(), cfg.areaID());
+      }
     }
 
-    debugPrint('~~~state isDaemonRunning: $isDaemonRunning , $isRunning');
     if (isDaemonRunning == isRunning) {
       return;
     }
