@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage>
                       fontSize: 28.0.sp),
                   children: [
                     TextSpan(
-                        text: S.of(context).TTN,
+                        text: BridgeMgr().minerBridge.minerInfo.tokenUnit(),
                         style: TextStyle(
                             color: AppDarkColors.titleColor, fontSize: 14.0.sp))
                   ])
@@ -419,7 +419,7 @@ class _HomePageState extends State<HomePage>
       eMsg = Lang().dict.startError;
     }
 
-    debugPrint('start/stop call: $result');
+    debugPrint('start/stop call: $result , $eMsg');
     isClickHandling = false;
     final Map<String, dynamic> jsonResult = jsonDecode(result);
 
