@@ -1,41 +1,45 @@
 import 'package:flutter/material.dart';
 
-import '../generated/l10n.dart';
 import '../themes/colors.dart';
 
 class LogsItem extends StatelessWidget {
-  final String time;
-  final String status;
   final String environment;
   final String description;
+  final Color? textColor;
 
   const LogsItem({
     super.key,
-    this.time = "",
-    this.status = "",
     this.environment = "",
     this.description = "",
+    this.textColor = AppDarkColors.titleColor,
   });
 
-  Widget _titleItem(BuildContext context, String title, String text) {
+  Widget _titleItem(BuildContext context, String title) {
+    return Row(
+      children: [
+        RichText(
+          text: TextSpan(
+            text: title,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 14.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _titleDescItem(BuildContext context, String title) {
     return Row(
       children: [
         RichText(
           text: TextSpan(
             text: title,
             style: const TextStyle(
-              color: AppDarkColors.grayColor,
-              fontSize: 12.0,
+              color: AppDarkColors.titleColor,
+              fontSize: 14.0,
             ),
-            children: [
-              TextSpan(
-                text: text,
-                style: const TextStyle(
-                  color: AppDarkColors.titleColor,
-                  fontSize: 14.0,
-                ),
-              )
-            ],
           ),
         ),
       ],
@@ -53,23 +57,14 @@ class LogsItem extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _titleItem(context, S.of(context).history_time, time),
+          _titleItem(context, environment),
           const SizedBox(
             height: 15,
           ),
-          _titleItem(context, S.of(context).history_status, status),
+          _titleDescItem(context, description),
           const SizedBox(
             height: 15,
           ),
-          _titleItem(context, S.of(context).history_environment, environment),
-          const SizedBox(
-            height: 20,
-          ),
-          Text(
-            description,
-            style:
-                const TextStyle(color: AppDarkColors.grayColor, fontSize: 12),
-          )
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:titan_app/widgets/common_input_field.dart';
 import 'package:titan_app/widgets/common_text_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +11,7 @@ import '../../bean/bridge_mgr.dart';
 import '../../generated/l10n.dart';
 import '../../http_repository/error.dart';
 import '../../lang/lang.dart';
+import '../../providers/localization_provider.dart';
 import '../../themes/colors.dart';
 import '../../utils/utility.dart';
 import '../../widgets/wallet_confirm_dialog.dart';
@@ -21,8 +23,11 @@ class WalletBindingPage extends StatefulWidget {
   WalletBindingPageState createState() => WalletBindingPageState();
 }
 
-const String bindHelpUrl =
+const String bindHelpUrlZh =
     'https://titannet.gitbook.io/titan-network-cn/huygens-testnet/an-zhuang-cheng-xu-zhuan-qu/bang-ding-shen-fen-ma';
+
+const String bindHelpUrlEn =
+    "https://titannet.gitbook.io/titan-network-en/huygens-testnet/installation-and-earnings/bind-the-identity-code";
 
 class WalletBindingPageState extends State<WalletBindingPage> {
   final TextEditingController _controller = TextEditingController();
@@ -104,7 +109,11 @@ class WalletBindingPageState extends State<WalletBindingPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    launchUrl(Uri.parse(bindHelpUrl));
+                    bool isEnglish = Provider.of<LocalizationProvider>(context,
+                            listen: false)
+                        .isEnglish();
+                    launchUrl(
+                        Uri.parse(isEnglish ? bindHelpUrlEn : bindHelpUrlZh));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppDarkColors.themeColor,

@@ -1,11 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:titan_app/pages/home/home_page.dart';
-import 'dart:async';
-
 // import 'package:titan_app/pages/login/login_page.dart';
 import 'package:titan_app/pages/logs/logs_page.dart';
 import 'package:titan_app/pages/setting/setting_page.dart';
@@ -132,6 +132,8 @@ class _AppHomePageState extends State<AppHomePage> {
           onItemTap: _onTapBottomNav,
           onItemLongTap: _onItemLongTap,
         ),
+        const Positioned(
+            left: 165, top: 16, child: UpdateRedPoint(isShow: true)),
         Positioned(
             right: 35, top: 16, child: UpdateRedPoint(isShow: !isLatestVersion))
       ],

@@ -55,6 +55,7 @@ dependencies:
   install_plugin: ^2.1.0
   permission_handler: ^11.3.1
   flustars: ^2.0.1
+  sidebarx: ^0.16.3
 
 dev_dependencies:
   flutter_test:

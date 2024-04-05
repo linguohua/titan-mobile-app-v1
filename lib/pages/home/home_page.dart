@@ -4,20 +4,26 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:titan_app/themes/colors.dart';
 import 'package:titan_app/utils/system_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
-import 'package:path/path.dart' as path;
-import '../../bean/bridge_mgr.dart';
-import '../../lang/lang.dart';
-import '/ffi/titanedge_jcall.dart' as nativel2;
 
+import '../../bean/bridge_mgr.dart';
 import '../../generated/l10n.dart';
+import '../../lang/lang.dart';
+import '../../utils/utility.dart';
 import '../../widgets/common_text_widget.dart';
 import '../../widgets/loading_indicator.dart';
-import '../../utils/utility.dart';
+import '/ffi/titanedge_jcall.dart' as nativel2;
+
+enum RunningStatus {
+  stop,
+  prepare,
+  running,
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,9 +36,14 @@ class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin {
   final double kImageSize = 300.w;
   double money = 0.0;
-  bool running = false;
-  late VideoPlayerController _controller;
-  late Future<void> _initializeVideoPlayerFuture;
+  RunningStatus running = RunningStatus.stop;
+  late VideoPlayerController _prepareController;
+  late VideoPlayerController _runningController;
+  late Future<void> _initializePrepareVideoPlayerFuture;
+  late Future<void> _initializeRunningVideoPlayerFuture;
+
+  Duration loopStart = const Duration(seconds: 3);
+  Duration prepareStart = const Duration(seconds: 0);
   bool isDaemonRunning = false;
   int daemonCounter = 0;
   bool isClickHandling = false;
@@ -46,9 +57,14 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset('assets/videos/running.mp4');
-    _initializeVideoPlayerFuture = _controller.initialize();
-    _controller.setLooping(true);
+    _prepareController =
+        VideoPlayerController.asset('assets/videos/prepare.mp4');
+    _runningController =
+        VideoPlayerController.asset('assets/videos/running.mp4');
+    _prepareController.setLooping(true);
+    _runningController.setLooping(true);
+    _initializePrepareVideoPlayerFuture = _prepareController.initialize();
+    _initializeRunningVideoPlayerFuture = _runningController.initialize();
 
     timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       queryDaemonState();
@@ -65,14 +81,15 @@ class _HomePageState extends State<HomePage>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _prepareController.dispose();
+    _runningController.dispose();
     timer.cancel();
     BridgeMgr().minerBridge.minerInfo.removeListener("income", "today");
     super.dispose();
   }
 
   double isVisible() {
-    return running ? 1 : 0.0;
+    return (running == RunningStatus.stop) ? 0.0 : 1;
   }
 
   @override
@@ -87,7 +104,11 @@ class _HomePageState extends State<HomePage>
               top: 144.h,
               left: (MediaQuery.of(context).size.width - kImageSize - 40.w) /
                   2, //40 buffer
-              child: _imageNode(context),
+              child: SizedBox(
+                width: kImageSize,
+                height: kImageSize,
+                child: _imageNode(context),
+              ),
             ),
             Column(
               children: [
@@ -179,31 +200,53 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _imageNode(BuildContext context) {
-    return SizedBox(
-      width: kImageSize,
-      height: kImageSize,
-      child: running
-          ? _startPlayNode(context)
-          : Image.asset(
-              "assets/images/mobile_node_stop.png",
-              fit: BoxFit.contain,
-            ),
-    );
+    if (running == RunningStatus.stop) {
+      return Image.asset(
+        "assets/images/mobile_node_stop.png",
+        fit: BoxFit.contain,
+      );
+    } else if (running == RunningStatus.prepare) {
+      return _startPrepareNode(context);
+    } else {
+      return _startRunningNode(context);
+    }
   }
 
-  Widget _startPlayNode(BuildContext context) {
+  Widget _startPrepareNode(BuildContext context) {
     return Container(
       color: Colors.transparent,
       child: FutureBuilder(
-          future: _initializeVideoPlayerFuture,
+          future: _initializePrepareVideoPlayerFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              if (running) {
-                _controller.play();
+              if (running == RunningStatus.stop) {
+                _prepareController.play();
               }
               return AspectRatio(
-                aspectRatio: _controller.value.aspectRatio * 1,
-                child: VideoPlayer(_controller),
+                aspectRatio: _prepareController.value.aspectRatio * 1,
+                child: VideoPlayer(_prepareController),
+              );
+            } else {
+              return Image.asset("assets/images/mobile_node_stop.png",
+                  fit: BoxFit.contain);
+            }
+          }),
+    );
+  }
+
+  Widget _startRunningNode(BuildContext context) {
+    return Container(
+      color: Colors.transparent,
+      child: FutureBuilder(
+          future: _initializeRunningVideoPlayerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (running == RunningStatus.stop) {
+                _runningController.play();
+              }
+              return AspectRatio(
+                aspectRatio: _runningController.value.aspectRatio * 1,
+                child: VideoPlayer(_runningController),
               );
             } else {
               return Image.asset("assets/images/mobile_node_stop.png",
@@ -214,40 +257,53 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _startButton(BuildContext context) {
+    Duration zero = const Duration(seconds: 0);
     return ElevatedButton(
       onPressed: () {
-        if (running) {
-          _controller.seekTo(const Duration(seconds: 1));
-          _controller.pause();
-          // setState(() {
-          //   running = false;
-          // });
-        } else {
-          LoadingIndicator.show(context, message: S.of(context).running);
-          _controller.seekTo(const Duration(seconds: 1));
-          Future.delayed(const Duration(seconds: 2), () {
-            _controller.play();
-            // setState(() {
-            //   running = true;
-            // });
-            LoadingIndicator.hide(context);
-          });
+        switch (running) {
+          case RunningStatus.stop:
+            LoadingIndicator.show(context, message: S.of(context).running);
+            _runningController.pause();
+            _prepareController.seekTo(zero);
+            _prepareController.play();
+            setState(() {
+              running = RunningStatus.prepare;
+            });
+            Future.delayed(const Duration(seconds: 2), () {
+              setState(() {
+                running = RunningStatus.running;
+              });
+              _prepareController.pause();
+              _runningController.seekTo(zero);
+              _runningController.play();
+              LoadingIndicator.hide(context);
+            });
+            break;
+          default:
+            _prepareController.pause();
+            _runningController.pause();
+            _prepareController.seekTo(zero);
+            _runningController.seekTo(zero);
+            setState(() {
+              running = RunningStatus.stop;
+            });
+            break;
         }
-        handleStartStopClick(context);
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            running ? const Color(0xff181818) : AppDarkColors.themeColor,
+        backgroundColor: (running == RunningStatus.stop)
+            ? AppDarkColors.themeColor
+            : const Color(0xff181818),
         minimumSize: Size(335.w, 48.h),
       ),
       child: Text(
-        running
-            ? S.of(context).stop_earning_coins
-            : S.of(context).start_earning_coins,
+        (running == RunningStatus.stop)
+            ? S.of(context).start_earning_coins
+            : S.of(context).stop_earning_coins,
         style: TextStyle(
-            color: running
-                ? AppDarkColors.grayColor
-                : AppDarkColors.backgroundColor,
+            color: (running == RunningStatus.stop)
+                ? AppDarkColors.backgroundColor
+                : AppDarkColors.grayColor,
             fontSize: 18.sp),
       ),
     );
@@ -393,7 +449,7 @@ class _HomePageState extends State<HomePage>
       return;
     }
     isDaemonRunning = isRunning;
-    running = isRunning;
+    running = RunningStatus.running;
 
     setState(() {
       // final String prefix = isDaemonRunning ? "Stop" : "Start";

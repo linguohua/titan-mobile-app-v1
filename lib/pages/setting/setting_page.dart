@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,7 +12,6 @@ import 'package:titan_app/providers/version_provider.dart';
 import 'package:titan_app/themes/colors.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
 
 import '../../generated/l10n.dart';
 import '../../widgets/common_text_widget.dart';
@@ -224,24 +224,6 @@ class _SettingPageState extends State<SettingPage> {
             //     Provider.of<VersionProvider>(context, listen: true).version),
             style:
                 const TextStyle(color: AppDarkColors.grayColor, fontSize: 12),
-          ),
-          Text(
-            S.of(context).setting_update_info_2,
-            style:
-                const TextStyle(color: AppDarkColors.grayColor, fontSize: 12),
-          ),
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: () async {
-              String url = 'https://titannet.io/zh/index.html';
-              if (!await launchUrl(Uri.parse(url))) {
-                throw Exception('Could not launch $url');
-              }
-            },
-            child: const Text(
-              "https://titannet.io/zh/index.html",
-              style: TextStyle(color: AppDarkColors.themeColor, fontSize: 12),
-            ),
           ),
           SizedBox(
             height: 46.h,
