@@ -33,7 +33,7 @@ class _SettingPageState extends State<SettingPage> {
     super.initState();
     _getVersion(context);
 
-    timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) {
+    timer = Timer.periodic(const Duration(seconds: 60 * 5), (Timer timer) {
       _getVersion(context);
     });
   }
