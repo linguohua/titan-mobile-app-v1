@@ -54,6 +54,10 @@ class LocalizationProvider extends ChangeNotifier {
   }
 
   toggleChangeLocale(Locale locale) {
+    if (locale == _local) {
+      return;
+    }
+
     _local = locale;
     debugPrint('current locale: ${_local.languageCode}_${_local.countryCode}');
 

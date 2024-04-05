@@ -117,26 +117,30 @@ class DaemonBridge extends ListenAble {
     _systemMemorySize = _cfgs.maxMem();
     _systemCpuCores = _cfgs.maxCpuCores();
 
-    if (_cfgs.id() == "") {
-      _initDaemon(onComplete);
-    } else {
-      onComplete();
-    }
+    // print('_cfgs.id() ${_cfgs.id()}');
+    // if (_cfgs.id() == "") {
+    //   _initDaemon(onComplete);
+    // } else {
+    // }
+    onComplete();
   }
 
-  void _initDaemon(VoidCallback onComplete) {
-    writeDaemonCfgs().whenComplete(() {}).then((value) async {
-      Map<String, dynamic> json = jsonDecode(value);
-      if (json['code'] != 0) {
-        logger.warning("init daemon failed");
-      } else {
-        await loadDaemonConfig();
-        onComplete();
-      }
-    }, onError: (e) {
-      logger.warning(e);
-    });
-  }
+  // void _initDaemon(VoidCallback onComplete) {
+  //   print('_initDaemon ');
+  //   writeDaemonCfgs().whenComplete(() {}).then((value) async {
+  //     Map<String, dynamic> json = jsonDecode(value);
+
+  //     print('_initDaemon json $json');
+  //     if (json['code'] != 0) {
+  //       logger.warning("init daemon failed");
+  //     } else {
+  //       await loadDaemonConfig();
+  //       onComplete();
+  //     }
+  //   }, onError: (e) {
+  //     logger.warning(e);
+  //   });
+  // }
 
   void _checkEdgeExeState() {
     _isChecking = true;
@@ -221,15 +225,19 @@ class DaemonBridge extends ListenAble {
   // }
 
   Future<String> writeDaemonCfgs() async {
-    Map<String, dynamic> configs = {
-      'Storage': {"StorageGB": 32, "Path": "D:/filecoin-titan/test2"},
-    };
-
-    var configFile = TomlDocument.fromMap(configs).toString();
-
     // debugPrint('configsJSON: $configFile');
     var directory = await getApplicationDocumentsDirectory();
     var repoPath = path.join(directory.path, "titanl2");
+    var repoDirectory = Directory(repoPath);
+    if (!await repoDirectory.exists()) {
+      await repoDirectory.create();
+    }
+
+    Map<String, dynamic> configs = {
+      'Storage': {"StorageGB": 32, "Path": repoPath},
+    };
+
+    var configFile = TomlDocument.fromMap(configs).toString();
 
     Map<String, dynamic> mergeConfigReqArgs = {
       'repoPath': repoPath,

@@ -98,8 +98,7 @@ class LogManager {
       return;
     }
 
-    final date = DateTime.now();
-    final filePath = getLogFilePath(date);
+    final filePath = getLogFilePath();
 
     final file = File(filePath);
     await file.parent.create(recursive: true);
@@ -113,8 +112,8 @@ class LogManager {
     await file.writeAsString(logEntryJson, mode: FileMode.append);
   }
 
-  static Future<List<LogEntry>> readLogEntries(String filePath) async {
-    // final filePath = getLogFilePath(date);
+  static Future<List<LogEntry>> readLogEntries() async {
+    final filePath = getLogFilePath();
     final file = File(filePath);
 
     final exists = await file.exists();
@@ -133,12 +132,12 @@ class LogManager {
     return logEntries.reversed.toList();
   }
 
-  String getLogFilePath(DateTime date) {
-    final fileName =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  static String getLogFilePath() {
+    // final fileName =
+    //     '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
     var dir = getLogDir();
-    return path.join(dir, fileName);
+    return path.join(dir, 'log');
   }
 
   static String getLogDir() {
