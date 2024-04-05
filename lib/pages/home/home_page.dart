@@ -12,11 +12,13 @@ import 'package:video_player/video_player.dart';
 import 'package:path/path.dart' as path;
 import '../../bean/bridge_mgr.dart';
 import '../../http_repository/bridge_miner.dart';
+import '../../lang/lang.dart';
 import '/ffi/titanedge_jcall.dart' as nativel2;
 
 import '../../generated/l10n.dart';
 import '../../widgets/common_text_widget.dart';
 import '../../widgets/loading_indicator.dart';
+import '../../utils/utility.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -143,7 +145,8 @@ class _HomePageState extends State<HomePage>
   }
 
   Future<void> toMoneyDetailPage() async {
-    String url = 'https://test1.titannet.io/nodeidDetail?device_id=${BridgeMgr().daemonBridge.daemonCfgs.id()}';
+    String url =
+        'https://test1.titannet.io/nodeidDetail?device_id=${BridgeMgr().daemonBridge.daemonCfgs.id()}';
     if (!await launchUrl(Uri.parse(url))) {
       throw Exception('Could not launch $url');
     }
@@ -217,21 +220,21 @@ class _HomePageState extends State<HomePage>
         if (running) {
           _controller.seekTo(const Duration(seconds: 1));
           _controller.pause();
-          setState(() {
-            running = false;
-          });
+          // setState(() {
+          //   running = false;
+          // });
         } else {
           LoadingIndicator.show(context, message: S.of(context).running);
           _controller.seekTo(const Duration(seconds: 1));
           Future.delayed(const Duration(seconds: 2), () {
             _controller.play();
-            setState(() {
-              running = true;
-            });
+            // setState(() {
+            //   running = true;
+            // });
             LoadingIndicator.hide(context);
           });
         }
-        handleStartStopClick();
+        handleStartStopClick(context);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor:
@@ -290,7 +293,7 @@ class _HomePageState extends State<HomePage>
     Map<String, dynamic> startDaemonArgs = {
       'repoPath': repoPath,
       'logPath': path.join(directory.path, "edge.log"),
-      'locatorURL':"https://test-locator.titannet.io:5000/rpc/v0"
+      'locatorURL': "https://test-locator.titannet.io:5000/rpc/v0"
     };
 
     String startDaemonArgsJSON = json.encode(startDaemonArgs);
@@ -306,7 +309,7 @@ class _HomePageState extends State<HomePage>
     return result;
   }
 
-  Future<String> stopDaemon() async{
+  Future<String> stopDaemon() async {
     Map<String, dynamic> stopDaemonArgs = {
       'method': 'stopDaemon',
       'JSONParams': "",
@@ -339,10 +342,7 @@ class _HomePageState extends State<HomePage>
     var directory = await getApplicationDocumentsDirectory();
     var repoPath = path.join(directory.path, "titanl2");
 
-    Map<String, dynamic> signReqArgs = {
-      'repoPath': repoPath,
-      'hash':"abc"
-    };
+    Map<String, dynamic> signReqArgs = {'repoPath': repoPath, 'hash': "abc"};
 
     var signReqArgsJSON = json.encode(signReqArgs);
 
@@ -362,33 +362,47 @@ class _HomePageState extends State<HomePage>
       return;
     }
 
-    if (!isDaemonRunning) {
-      return;
-    }
+    // if (!isDaemonRunning) {
+    //   return;
+    // }
 
     isQuerying = true;
     String result;
 
     result = await daemonState();
 
-    debugPrint('state call: $result');
+    debugPrint('~~~state call: $result');
 
     isQuerying = false;
-    final Map<String, dynamic> jsonResult = jsonDecode(result);
 
-    if (jsonResult["Code"] == 0) {
-      if (jsonResult["Counter"] != daemonCounter) {
-        daemonCounter = jsonResult["Counter"];
+    var jsonResult = jsonDecode(result);
 
-        setState(() {
-          final String prefix = isDaemonRunning ? "Stop" : "Start";
-          _title = "$prefix(counter:$daemonCounter)";
-        });
-      }
+    var isRunning = false;
+    if (jsonResult["code"] == 0) {
+      final data = jsonDecode(jsonResult["data"]);
+      var online = data["online"];
+
+      isRunning = online!;
+
+      // if (jsonResult["Counter"] != daemonCounter) {
+      //   daemonCounter = jsonResult["Counter"];
+      // }
     }
+
+    debugPrint('~~~state isDaemonRunning: $isDaemonRunning , $isRunning');
+    if (isDaemonRunning == isRunning) {
+      return;
+    }
+    isDaemonRunning = isRunning;
+    running = isRunning;
+
+    setState(() {
+      final String prefix = isDaemonRunning ? "Stop" : "Start";
+      _title = "$prefix(counter:$daemonCounter)";
+    });
   }
 
-  void handleStartStopClick() async {
+  void handleStartStopClick(BuildContext context) async {
     if (isClickHandling) {
       return;
     }
@@ -396,10 +410,13 @@ class _HomePageState extends State<HomePage>
     isClickHandling = true;
     String result;
 
+    var eMsg = "";
     if (isDaemonRunning) {
       result = await stopDaemon();
+      eMsg = Lang().dict.stopError;
     } else {
       result = await startDaemon();
+      eMsg = Lang().dict.startError;
     }
 
     debugPrint('start/stop call: $result');
@@ -407,10 +424,12 @@ class _HomePageState extends State<HomePage>
     final Map<String, dynamic> jsonResult = jsonDecode(result);
 
     if (jsonResult["code"] == 0) {
-      isDaemonRunning = !isDaemonRunning;
-      setState(() {
-        _title = isDaemonRunning ? "Stop" : "Start";
-      });
+      // isDaemonRunning = !isDaemonRunning;
+      // setState(() {
+      //   _title = isDaemonRunning ? "Stop" : "Start";
+      // });
+    } else {
+      Indicators.showMessage(context, eMsg, jsonResult["msg"], null, null);
     }
   }
 }
