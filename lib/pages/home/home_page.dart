@@ -437,9 +437,11 @@ class _HomePageState extends State<HomePage>
 
       if (BridgeMgr().daemonBridge.daemonCfgs.id() == "") {
         await BridgeMgr().daemonBridge.loadDaemonConfig();
-
+        // update node info
         var cfg = BridgeMgr().daemonBridge.daemonCfgs;
         BridgeMgr().minerBridge.setNodeInfo(cfg.id(), cfg.areaID());
+        // pull data from server
+        BridgeMgr().minerBridge.pullInfo();
       }
     }
 

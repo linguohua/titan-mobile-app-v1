@@ -107,7 +107,7 @@ class MinerBridge {
 
     var client = http.Client();
     try {
-      debugPrint('pullInfo request to server,token:$_token, id:$_id}');
+      debugPrint('pullInfo request to server,_areaID:$_areaID, id:$_id}');
       var response = await client.post(_webApiServerURL!,
           body: jsonEncode({
             'token': _token,
@@ -120,6 +120,7 @@ class MinerBridge {
               rspKeyNodeInfo
             ],
             'since': _since,
+            'area_id': _areaID,
           }));
 
       if (response.statusCode == 200) {
