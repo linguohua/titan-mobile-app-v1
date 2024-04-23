@@ -279,4 +279,11 @@ class SEn extends S {
 
   @override
   String get back => 'Back';
+
+  @override
+  String get download_progress => 'Download progress';
+
+  @override
+  String get download_installation_package =>
+      'Downloading installation package';
 }

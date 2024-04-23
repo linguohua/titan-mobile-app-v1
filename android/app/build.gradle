@@ -32,6 +32,9 @@ android {
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+//        ndk {
+//            abiFilters 'armeabi-v7a', 'arm64-v8a'// 'armeabi-v7a' ,'armeabi', 'x86', 'x86_64'
+//        }
     }
 
     compileOptions {
@@ -41,6 +44,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/java'
+        main.jniLibs.srcDirs = ['libs']
     }
 
     buildTypes {

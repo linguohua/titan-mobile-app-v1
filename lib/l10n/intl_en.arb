@@ -104,5 +104,8 @@
   
   "belongs": "Titan Account related to identity code",
   "bound": "Bound",
-  "back": "Back"
+  "back": "Back",
+
+   "download_progress": "Download progress",
+    "download_installation_package": "Downloading installation package"
 }

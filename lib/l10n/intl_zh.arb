@@ -102,5 +102,7 @@
 
   "belongs": "所属账户",
   "bound": "已绑定",
-  "back": "返回"
+  "back": "返回",
+   "download_progress": "下载进度",
+    "download_installation_package": "正在下载安装包"
 }

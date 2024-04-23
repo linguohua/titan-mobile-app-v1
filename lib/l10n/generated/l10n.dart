@@ -629,6 +629,18 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Back'**
   String get back;
+
+  /// No description provided for @download_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Download progress'**
+  String get download_progress;
+
+  /// No description provided for @download_installation_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading installation package'**
+  String get download_installation_package;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
