@@ -14,7 +14,7 @@ public class HelloJni {
         try {
             System.loadLibrary("gol2");
         } catch (UnsatisfiedLinkError e) {
-            Log.e(TAG, "gol2 failed to load.\n" + e);
+            Log.d(TAG, "gol2 failed to load.\n" + e);
         }
 
         try {

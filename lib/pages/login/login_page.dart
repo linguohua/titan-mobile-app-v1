@@ -16,6 +16,7 @@ import '../../widgets/underline_text.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,6 +93,7 @@ class LoginForm extends StatefulWidget {
 
 class LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
+
   // String _email = '';
   // String _password = '';
   // bool _agreedToTerms = false;

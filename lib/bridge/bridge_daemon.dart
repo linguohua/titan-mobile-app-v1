@@ -1,16 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:titan_app/config/appConfig.dart';
 import 'package:toml/toml.dart';
-import 'package:logging/logging.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:convert';
-import '/ffi/nativel2.dart';
 
-import 'daemon_cfgs.dart';
 import '../utils/utility.dart';
+import '/ffi/nativel2.dart';
 import 'bridge_mgr.dart';
+import 'daemon_cfgs.dart';
 
 typedef BridgeCallback = void Function();
 
@@ -25,13 +27,34 @@ class DaemonBridge extends ListenAble {
 
   late DaemonCfgs _cfgs;
 
-  // bool _isDaemonRunning = false;
+  bool _isDaemonRunning = false;
   bool _isDaemonOnline = false;
+  String? _ipError = "";
+
+  String get ipErrorMsg => _ipError ?? "";
 
   // bool get isDaemonRunning => _isDaemonRunning;
   bool get isDaemonOnline => _isDaemonOnline;
 
   final logger = Logger('DaemonBridge');
+
+  void setIpErrorMsg(String? msg) {
+    _ipError = msg;
+  }
+
+  bool isEdgeExeRunning() {
+    return _isDaemonRunning;
+  }
+
+  bool isEdgeOnline() {
+    return _isDaemonOnline;
+  }
+
+  void updateEdgeExeState(bool running, bool online) {
+    _isDaemonRunning = running;
+    _isDaemonOnline = online;
+    // notify("edgeState");
+  }
 
   String titanL2ExecutablePath() {
     var fileName = 'titan-edge';
@@ -40,6 +63,13 @@ class DaemonBridge extends ListenAble {
 
   String titanL2ConfigPath() {
     return path.join(BridgeMgr().appDocPath, configFileName);
+  }
+
+  Future<void> init(VoidCallback onComplete) async {
+    await writeDaemonCfgs();
+    await loadDaemonConfig();
+    await _initDaemonState();
+    onComplete();
   }
 
   Future<void> loadDaemonConfig() async {
@@ -67,37 +97,24 @@ class DaemonBridge extends ListenAble {
     debugPrint(result);
   }
 
-  Future<void> init(VoidCallback onComplete) async {
-    await loadDaemonConfig();
-    await _initDaemonState();
-
-    onComplete();
-  }
-
   DaemonCfgs get daemonCfgs => _cfgs;
 
   Future<String> writeDaemonCfgs() async {
-    // debugPrint('configsJSON: $configFile');
     var directory = await getApplicationDocumentsDirectory();
     var repoPath = path.join(directory.path, "titanl2");
     var repoDirectory = Directory(repoPath);
     if (!await repoDirectory.exists()) {
       await repoDirectory.create();
     }
-
     Map<String, dynamic> configs = {
-      'Storage': {"StorageGB": 2, "Path": repoPath},
+      'Storage': {"StorageGB": 5, "Path": repoPath},
     };
-
     var configFile = TomlDocument.fromMap(configs).toString();
-
     Map<String, dynamic> mergeConfigReqArgs = {
       'repoPath': repoPath,
       "config": configFile
     };
-
     var mergeConfigReqArgsJSON = json.encode(mergeConfigReqArgs);
-
     Map<String, dynamic> jsonCallArgs = {
       'method': 'mergeConfig',
       'JSONParams': mergeConfigReqArgsJSON,
@@ -122,9 +139,7 @@ class DaemonBridge extends ListenAble {
       'method': 'sign',
       'JSONParams': signReqArgsJSON,
     };
-
     var args = json.encode(jsonCallArgs);
-
     var result = await NativeL2().jsonCall(args);
     return result;
   }
@@ -136,29 +151,22 @@ class DaemonBridge extends ListenAble {
     if (!await repoDirectory.exists()) {
       await repoDirectory.create();
     }
-
-    debugPrint("path $repoDirectory");
-
     Map<String, dynamic> startDaemonArgs = {
       'repoPath': repoPath,
       'logPath': path.join(directory.path, "edge.log"),
-      'locatorURL': "https://test-locator.titannet.io:5000/rpc/v0"
+      'locatorURL': AppConfig.locatorURL
     };
-
     String startDaemonArgsJSON = json.encode(startDaemonArgs);
-
     Map<String, dynamic> jsonCallArgs = {
       'method': 'startDaemon',
       'JSONParams': startDaemonArgsJSON,
     };
-
     var args = json.encode(jsonCallArgs);
-
     String jsonResult = "";
     int tryCall = 0;
     bool isOK = false;
 
-    while (tryCall < 5) {
+    while (tryCall < 10) {
       jsonResult = await NativeL2().jsonCall(args);
       if (!_isJsonResultOK(jsonResult)) {
         // delay 1 seconds
@@ -166,7 +174,6 @@ class DaemonBridge extends ListenAble {
         tryCall++;
         continue;
       }
-
       isOK = true;
       break;
     }
@@ -174,19 +181,29 @@ class DaemonBridge extends ListenAble {
     if (!isOK) {
       return {"bool": false, "r": jsonResult};
     }
-
     // query y times
     tryCall = 0;
     isOK = false;
-    while (tryCall < 5) {
+    while (tryCall < 10) {
       // delay 1 seconds
       await Future.delayed(const Duration(seconds: 1));
       jsonResult = await daemonState();
+
+      var jsonData = jsonDecode(jsonResult);
+      if (jsonData["code"] == 0) {
+        final data = jsonDecode(jsonData["data"]);
+        String errMsg = data["errMsg"] ?? "";
+        debugPrint("errMsg=$errMsg");
+        if (errMsg.isNotEmpty) {
+          _ipError = errMsg;
+          tryCall = 5;
+          break;
+        }
+      }
       if (!_waitDaemonState(jsonResult, true)) {
         tryCall++;
         continue;
       }
-
       isOK = true;
       break;
     }
@@ -259,7 +276,13 @@ class DaemonBridge extends ListenAble {
 
     var args = json.encode(jsonCallArgs);
     var result = await NativeL2().jsonCall(args);
-
+    var jsonResult = jsonDecode(result);
+    if (jsonResult["code"] == 0) {
+      final data = jsonDecode(jsonResult["data"]);
+      bool online = data["online"];
+      bool running = data["running"];
+      updateEdgeExeState(running, online);
+    }
     return result;
   }
 
@@ -289,5 +312,52 @@ class DaemonBridge extends ListenAble {
     } else {
       _isDaemonOnline = false;
     }
+  }
+
+  Future<String> downloadFile(String cid, String version) async {
+    var directory = await getApplicationDocumentsDirectory();
+    var downloadDirectory = Directory('${directory.path}/downloadFile');
+    if (!await downloadDirectory.exists()) {
+      await downloadDirectory.create();
+    }
+    String savePath = '${downloadDirectory.path}/$version' '_titan.apk';
+    Map<String, dynamic> map = {
+      'cid': cid,
+      'download_path': savePath,
+      'locator_url': AppConfig.locatorURL
+    };
+    Map<String, dynamic> jsonCallArgs = {
+      'method': 'downloadFile',
+      'JSONParams': json.encode(map),
+    };
+    var args = json.encode(jsonCallArgs);
+    var result = await NativeL2().jsonCall(args);
+    return savePath;
+  }
+
+  Future<Map<String, dynamic>> downloadProgress(String savePath) async {
+    Map<String, dynamic> map = {
+      'file_path': savePath,
+    };
+    Map<String, dynamic> jsonCallArgs = {
+      'method': 'downloadProgress',
+      'JSONParams': json.encode(map),
+    };
+    var args = json.encode(jsonCallArgs);
+    var result = await NativeL2().jsonCall(args);
+    return jsonDecode(result);
+  }
+
+  Future<bool> downloadCancel(String savePath) async {
+    Map<String, dynamic> map = {
+      'file_path': savePath,
+    };
+    Map<String, dynamic> jsonCallArgs = {
+      'method': 'downloadCancel',
+      'JSONParams': json.encode(map),
+    };
+    var args = json.encode(jsonCallArgs);
+    var result = await NativeL2().jsonCall(args);
+    return true;
   }
 }

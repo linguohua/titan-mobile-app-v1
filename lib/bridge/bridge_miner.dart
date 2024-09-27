@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/rendering.dart';
-import 'package:logging/logging.dart';
-import 'package:http/http.dart' as http;
 
-import 'miner_info.dart';
+import 'package:flutter/rendering.dart';
+import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
+import 'package:titan_app/config/appConfig.dart';
+
 import 'daemon_cfgs.dart';
 import 'error.dart';
+import 'miner_info.dart';
 
 class MinerBridge {
   String _token = "";
@@ -28,6 +30,7 @@ class MinerBridge {
   DateTime _currentDate = DateTime.now();
 
   MinerInfo get minerInfo => _info;
+
   String get appVersion => _appVersion;
 
   bool _isActivating = false;
@@ -43,7 +46,7 @@ class MinerBridge {
     _token = daemonCfgs.token();
     _areaID = daemonCfgs.areaID();
     _appVersion = appVersion;
-    _webApiServerURL = Uri.parse(daemonCfgs.webServerURL());
+    _webApiServerURL = Uri.parse("${AppConfig.webServerURL}/api/v2/device");
 
     _info.initData();
   }
@@ -165,9 +168,14 @@ class MinerBridge {
     var client = http.Client();
     try {
       var response = await client.get(url);
+
+
       if (response.statusCode == 200) {
         var decodedResponse =
             jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+
+        print('===getAccountInfo ${decodedResponse.toString()}');
+
         if (decodedResponse['code'] != 0) {
           errorCode = decodedResponse['err'] != null
               ? decodedResponse['err'] as int
@@ -200,6 +208,14 @@ class MinerBridge {
       String hash, String sign, Function(int) callback) async {
     var url = Uri.parse('$_webApiServerURL/binding');
     var errorCode = 0;
+    print("==========url======${url}");
+
+    print("==========body======${jsonEncode({
+      'hash': hash,
+      'node_id': _id,
+      'signature': sign,
+      'area_id': _areaID,
+    })}");
 
     var client = http.Client();
     try {
@@ -210,14 +226,17 @@ class MinerBridge {
             'signature': sign,
             'area_id': _areaID,
           }));
+
+      print("==========response======${response.body}");
+
       if (response.statusCode == 200) {
         var decodedResponse =
             jsonDecode(utf8.decode(response.bodyBytes)) as Map;
+
         if (decodedResponse['code'] != 0) {
           errorCode = decodedResponse['err'] != null
               ? decodedResponse['err'] as int
               : ErrorCode.unknown;
-
           logger.warning('bindingAccount errorCode ${decodedResponse['err']}');
         }
       } else {
@@ -230,6 +249,8 @@ class MinerBridge {
     } finally {
       client.close();
     }
+
+    print("==========errorCode======${errorCode}");
 
     callback(errorCode);
   }

@@ -29,7 +29,7 @@ class ErrorCode {
       case network:
         return S.of(context).error_network;
       case nodeNotExist:
-        return S.of(context).error_network;
+        return S.of(context).devicenotexists;
       default:
         return S.of(context).error_unknown;
     }

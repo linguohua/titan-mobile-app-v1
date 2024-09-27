@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'dart:async';
+import 'package:path_provider/path_provider.dart';
 
 import 'bridge_mgr.dart';
 
@@ -112,8 +114,8 @@ class LogManager {
     await file.writeAsString(logEntryJson, mode: FileMode.append);
   }
 
-  static Future<List<LogEntry>> readLogEntries() async {
-    final filePath = getLogFilePath();
+  static Future<List<LogEntry>> readLogEntries(filePath) async {
+    // final filePath = getLogFilePath(date);
     final file = File(filePath);
 
     final exists = await file.exists();
@@ -130,6 +132,23 @@ class LogManager {
         .toList();
 
     return logEntries.reversed.toList();
+    // final filePath = getLogFilePath();
+    // final file = File(filePath);
+    //
+    // final exists = await file.exists();
+    // if (!exists) {
+    //   return [];
+    // }
+    //
+    // final fileContent = await file.readAsString();
+    // final logEntries = fileContent
+    //     .trim()
+    //     .split('\n')
+    //     .where((line) => line.isNotEmpty)
+    //     .map((line) => LogEntry.fromJson(jsonDecode(line)))
+    //     .toList();
+    //
+    // return logEntries.reversed.toList();
   }
 
   static String getLogFilePath() {
@@ -149,5 +168,11 @@ class LogManager {
 
     // String executablePath = Platform.resolvedExecutable;
     // return path.join(path.dirname(executablePath), "logs");
+  }
+
+  static Future<String> getLogEdgeFilePath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final logFilePath = '${directory.path}/edge.log';
+    return logFilePath;
   }
 }

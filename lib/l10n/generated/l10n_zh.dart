@@ -116,7 +116,7 @@ class SZh extends S {
   String get tab_setting => '设置';
 
   @override
-  String get setting_huygens_testnet => '惠更斯测试网';
+  String get setting_huygens_testnet => '文档';
 
   @override
   String get about_titan => '关于Titan';
@@ -137,7 +137,7 @@ class SZh extends S {
   String get setting_language_zh => '中文';
 
   @override
-  String get setting_language_en => '英文';
+  String get setting_language_en => 'EN';
 
   @override
   String get setting_twitter => '推特';
@@ -276,4 +276,127 @@ class SZh extends S {
 
   @override
   String get back => '返回';
+
+  @override
+  String get confirm => '确认';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get submit => '提交';
+
+  @override
+  String get gentleReminder => '温馨提示';
+
+  @override
+  String get disableNode => '当前正在使用流量，是否关闭节点？';
+
+  @override
+  String get enableNode => '当前正在使用流量，是否开启节点？';
+
+  @override
+  String get networkNotConnected => '当前网络未连接，请检测网络是否正常';
+
+  @override
+  String get oneCopy => '一键复制';
+
+  @override
+  String get copiedPasteboard => '已复制到粘贴板';
+
+  @override
+  String get bindingErrorNode => '绑定身份码需要启动节点并运行节点';
+
+  @override
+  String get startNodeContinue => '启动节点并继续';
+
+  @override
+  String get download_progress => '下载进度';
+
+  @override
+  String get download_installation_package => '正在下载安装包';
+
+  @override
+  String get noLongerPrompt => '是否不再提示';
+
+  @override
+  String get t24TimeNotShow => '24小时内不在展示';
+
+  @override
+  String get problemFeedback => '问题反馈';
+
+  @override
+  String get submitBugs => '提交BUG';
+
+  @override
+  String get history => '历史记录';
+
+  @override
+  String get nodeId => '节点ID';
+
+  @override
+  String get yourQuestion => '请描述你的问题，我们会尽快处理并回复';
+
+  @override
+  String get questionDsc => '请输入详细问题描述';
+
+  @override
+  String get telegramDsc => '请输入Telegram';
+
+  @override
+  String get feedbackDes => '为了更快处理你的反馈，请选择反馈类型';
+
+  @override
+  String get pleasePicture => '请添加图片';
+
+  @override
+  String get questionDsc2 => '请先绑定身份码';
+
+  @override
+  String get questionDsc3 => '问题描述';
+
+  @override
+  String get submittedOk => '提交成功';
+
+  @override
+  String get submissionFailed => '提交失败';
+
+  @override
+  String get updateTime => '更新时间';
+
+  @override
+  String get pending => '待处理';
+
+  @override
+  String get processed => '已处理';
+
+  @override
+  String get reward => '奖励';
+
+  @override
+  String get nothistory => '暂无历史记录';
+
+  @override
+  String get zyanSSet => '资源设置';
+
+  @override
+  String get usingMobileData => '允许节点在使用移动数据时运行';
+
+  @override
+  String get allowrun => '允许运行';
+
+  @override
+  String get prohibit => '禁止运行';
+
+  @override
+  String get zyanSSetok => '资源设置成功';
+
+  @override
+  String get currentResource => '当前资源设置为 节点使用移动数据时禁止运行';
+
+  @override
+  String get stillrunning => '仍然运行';
+
+  @override
+  String get devicenotexists => '设备不存在';
 }

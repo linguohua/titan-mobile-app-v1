@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:path/path.dart' as path;
 
 import 'bridge_mgr.dart';
@@ -78,13 +79,6 @@ class DaemonCfgs {
     }
 
     return _areaID;
-  }
-
-  //https://api-test1.container1.titannet.io/api/v2/device
-  //https://test1.titannet.io/nodeidDetail
-  String webServerURL() {
-    return kvMap[_keyNetwork][_keyWebServerURL] ??
-        'https://api-test1.container1.titannet.io/api/v2/device';
   }
 
   String nodeInfoURL() {

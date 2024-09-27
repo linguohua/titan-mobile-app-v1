@@ -18,7 +18,6 @@ enum FontSize {
 
   /// Extra large font size, suitable for very prominent headers or very large text.
   extraLarge,
-
   biggest,
 }
 

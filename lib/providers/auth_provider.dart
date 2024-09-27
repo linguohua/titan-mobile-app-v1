@@ -8,8 +8,11 @@ class AuthProvider extends ChangeNotifier {
   bool _isPrivacySigned = true;
 
   String get username => _username;
+
   String get password => _password;
+
   bool get isLoggedIn => !_isLoggedIn;
+
   bool get isPrivacySigned => _isPrivacySigned;
 
   void changePrivacy() {

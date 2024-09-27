@@ -9,11 +9,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/parsing.dart';
 
 import '../../bridge/bridge_mgr.dart';
-import '../../l10n/generated/l10n.dart';
 import '../../bridge/error.dart';
+import '../../config/constant.dart';
+import '../../l10n/generated/l10n.dart';
 import '../../providers/localization_provider.dart';
 import '../../themes/colors.dart';
+import '../../utils/shared_preferences.dart';
 import '../../utils/utility.dart';
+import '../../widgets/loading_indicator.dart';
 import '../../widgets/wallet_confirm_dialog.dart';
 
 class WalletBindingPage extends StatefulWidget {
@@ -24,10 +27,12 @@ class WalletBindingPage extends StatefulWidget {
 }
 
 const String bindHelpUrlZh =
-    'https://titannet.gitbook.io/titan-network-cn/huygens-testnet/an-zhuang-cheng-xu-zhuan-qu/bang-ding-shen-fen-ma';
+    "https://titannet.gitbook.io/titan-network-cn/herschel-testnet/chang-jian-wen-ti/bang-ding-shen-fen-ma";
+//'https://titannet.gitbook.io/titan-network-cn/huygens-testnet/an-zhuang-cheng-xu-zhuan-qu/bang-ding-shen-fen-ma';
 
 const String bindHelpUrlEn =
-    "https://titannet.gitbook.io/titan-network-en/huygens-testnet/installation-and-earnings/bind-the-identity-code";
+    "https://titannet.gitbook.io/titan-network-en/herschel-testnet/faq/bind-the-identity-code";
+// "https://titannet.gitbook.io/titan-network-en/huygens-testnet/installation-and-earnings/bind-the-identity-code";
 
 class WalletBindingPageState extends State<WalletBindingPage> {
   final TextEditingController _controller = TextEditingController();
@@ -35,6 +40,7 @@ class WalletBindingPageState extends State<WalletBindingPage> {
   @override
   void initState() {
     super.initState();
+  //  _controller.text = "D754085C-60DE-445F-A906-84CC44ED8E63";
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       BridgeMgr().minerBridge.minerInfo.addListener("account", "page_binding",
           () {
@@ -46,7 +52,6 @@ class WalletBindingPageState extends State<WalletBindingPage> {
   @override
   Widget build(BuildContext context) {
     var isBinded = BridgeMgr().minerBridge.minerInfo.account.isNotEmpty;
-    debugPrint('build call, isBinded:$isBinded');
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -133,7 +138,7 @@ class WalletBindingPageState extends State<WalletBindingPage> {
     );
   }
 
-  void boundAction(String bindingCode, BuildContext context1) {
+  void _onBoundAction(String bindingCode, BuildContext context1) {
     String nodeSign = "";
     if (bindingCode.isEmpty) {
       Indicators.showMessage(context1, S.of(context1).failed_bind,
@@ -145,7 +150,6 @@ class WalletBindingPageState extends State<WalletBindingPage> {
       UuidParsing.parse(bindingCode);
     } catch (e) {
       debugPrint("boundAction parse uuid failed:${e.runtimeType}");
-
       Indicators.showMessage(context1, S.of(context1).failed_bind,
           S.of(context1).error_identity_format_invalid, null, null);
       return;
@@ -167,15 +171,17 @@ class WalletBindingPageState extends State<WalletBindingPage> {
                 Indicators.showMessage(context1, S.of(context1).failed_bind,
                     ErrorCode.getErrorMessage(context1, code), null, null);
               } else {
+                TTSharedPreferences.setString(Constant.userCode, bindingCode);
+                TTSharedPreferences.setString(Constant.userAddress, account);
                 BridgeMgr().minerBridge.minerInfo.account = account;
                 BridgeMgr().minerBridge.minerInfo.address = address;
                 BridgeMgr().minerBridge.minerInfo.bindingCode = bindingCode;
                 BridgeMgr().minerBridge.minerInfo.notify('account');
+                if (context1.mounted) {
+                  Navigator.pop(context1);
+                }
               }
             });
-            if (context1.mounted) {
-              Navigator.pop(context1);
-            }
           },
         );
       }
@@ -197,6 +203,66 @@ class WalletBindingPageState extends State<WalletBindingPage> {
       Indicators.showMessage(
           context, S.of(context1).failed_bind, e, null, null);
     });
+  }
+
+  void boundAction(String bindingCode, BuildContext context1) {
+    var isRunning = BridgeMgr().daemonBridge.isEdgeExeRunning();
+    var isOnline = BridgeMgr().daemonBridge.isEdgeOnline();
+
+    debugPrint('isRunning:$isRunning :isOnline=$isOnline');
+
+    if (!isRunning && !isOnline) {
+      showDialog(
+        context: context,
+        builder: (BuildContext _context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xff181818),
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              S.of(context).startNodeContinue,
+              style: const TextStyle(),
+            ),
+            content: Container(
+              margin: const EdgeInsets.all(20),
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: 60.w,
+              child: Text(S.of(context).bindingErrorNode,
+                  style: const TextStyle(fontSize: 16)),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(_context).pop(false);
+                },
+                child: Text(S.of(context).cancel,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(_context).pop();
+                  LoadingIndicator.show(context,
+                      message: S.of(context).starting);
+                  var map = await BridgeMgr().daemonBridge.startDaemon();
+                  Navigator.of(context).pop();
+                  var isRunning = BridgeMgr().daemonBridge.isEdgeExeRunning();
+                  var isOnline = BridgeMgr().daemonBridge.isEdgeOnline();
+                  if (!isRunning && !isOnline) {
+                    Indicators.showMessage(context1,
+                        S.of(context1).failed_start, "$map", null, null);
+                  } else {
+                    _onBoundAction(bindingCode, context1);
+                  }
+                },
+                child: Text(S.of(context).confirm,
+                    style: const TextStyle(fontSize: 14, color: Colors.green)),
+              ),
+            ],
+          );
+        },
+      ).then((value) {});
+    } else {
+      _onBoundAction(bindingCode, context1);
+    }
   }
 
   Widget _inputIdentityCode(BuildContext context) {
@@ -291,11 +357,18 @@ class WalletBindingPageState extends State<WalletBindingPage> {
                               fontSize: 12,
                             )),
                         const Expanded(child: SizedBox()),
-                        Text(BridgeMgr().minerBridge.minerInfo.bindingCode,
-                            style: const TextStyle(
-                              color: AppDarkColors.hintColor,
-                              fontSize: 12,
-                            )),
+                        Spacer(),
+                        Container(
+                          width: 200.w,
+                          child: Text(
+                              BridgeMgr().minerBridge.minerInfo.bindingCode,
+                              softWrap: true,
+                              textAlign: TextAlign.end,
+                              style: const TextStyle(
+                                color: AppDarkColors.hintColor,
+                                fontSize: 12,
+                              )),
+                        ),
                       ],
                     ),
                   )),

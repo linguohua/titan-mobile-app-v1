@@ -12,6 +12,7 @@ class CommonInputField extends StatelessWidget {
   final bool obscureText;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
+
   const CommonInputField(
       {super.key,
       required this.controller,

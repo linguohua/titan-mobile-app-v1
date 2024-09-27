@@ -75,7 +75,7 @@ class SEn extends S {
   String get ttn => 'TTN';
 
   @override
-  String get email => 'Email Address';
+  String get email => 'Email';
 
   @override
   String get current_device_ID => 'Current Device ID';
@@ -117,7 +117,7 @@ class SEn extends S {
   String get tab_setting => 'Settings';
 
   @override
-  String get setting_huygens_testnet => 'Huygens Testnet';
+  String get setting_huygens_testnet => 'Doc';
 
   @override
   String get about_titan => 'About Titan';
@@ -135,7 +135,7 @@ class SEn extends S {
   String get setting_change_language => 'Languages';
 
   @override
-  String get setting_language_zh => 'ZH';
+  String get setting_language_zh => '中文';
 
   @override
   String get setting_language_en => 'EN';
@@ -279,4 +279,135 @@ class SEn extends S {
 
   @override
   String get back => 'Back';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get gentleReminder => 'Gentle Reminder';
+
+  @override
+  String get disableNode =>
+      'You are currently using mobile data. Do you want to disable the node?';
+
+  @override
+  String get enableNode =>
+      'You are currently using mobile data. Do you want to enable the node?';
+
+  @override
+  String get networkNotConnected =>
+      'The current network is not connected. Please check your network';
+
+  @override
+  String get oneCopy => 'One click copy';
+
+  @override
+  String get copiedPasteboard => 'Copied to Pasteboard';
+
+  @override
+  String get bindingErrorNode =>
+      'Binding the identity code requires starting the node and running the node';
+
+  @override
+  String get startNodeContinue => 'Start node and continue';
+
+  @override
+  String get download_progress => 'Download progress';
+
+  @override
+  String get download_installation_package =>
+      'Downloading installation package';
+
+  @override
+  String get noLongerPrompt => 'Do you want to no longer prompt';
+
+  @override
+  String get t24TimeNotShow => 'Not displayed within 24 hours';
+
+  @override
+  String get problemFeedback => 'Problem Feedback';
+
+  @override
+  String get submitBugs => 'Submit bugs';
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get nodeId => 'NodeId';
+
+  @override
+  String get yourQuestion =>
+      'Please describe your issue, we will handle it as soon as possible and reply';
+
+  @override
+  String get questionDsc => 'Problem description';
+
+  @override
+  String get telegramDsc => 'Please enter Telegram';
+
+  @override
+  String get feedbackDes =>
+      'To process your feedback faster, please select the feedback type';
+
+  @override
+  String get pleasePicture => 'Please add a picture';
+
+  @override
+  String get questionDsc2 => 'Please bind your ID code first';
+
+  @override
+  String get questionDsc3 => 'description';
+
+  @override
+  String get submittedOk => 'Submitted successfully';
+
+  @override
+  String get submissionFailed => 'Submission failed';
+
+  @override
+  String get updateTime => 'Update time';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get processed => 'Processed';
+
+  @override
+  String get reward => 'Reward';
+
+  @override
+  String get nothistory => 'There is currently no historical record';
+
+  @override
+  String get zyanSSet => 'Resource Settings';
+
+  @override
+  String get usingMobileData => 'Allow nodes to run while using mobile data';
+
+  @override
+  String get allowrun => 'Allow to run';
+
+  @override
+  String get prohibit => 'Prohibit operation';
+
+  @override
+  String get zyanSSetok => 'Resource settings successful';
+
+  @override
+  String get currentResource =>
+      'Prohibit running when the current resource is set to nodes using mobile data';
+
+  @override
+  String get stillrunning => 'Still running';
+
+  @override
+  String get devicenotexists => 'The device does not exist';
 }

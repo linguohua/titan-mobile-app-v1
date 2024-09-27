@@ -7,10 +7,21 @@ class VersionProvider extends ChangeNotifier {
   String _localVersion = '1.0.0';
   String _desc = '';
   String _url = '';
+  double _downProgress = 0.0;
+  String _cid = '';
+
   String get remoteVersion => _remoteVersion;
+
   String get localVersion => _localVersion;
+
   String get url => _url;
+
   String get desc => _desc;
+
+  double get downProgress => _downProgress;
+
+  String get cid => _cid;
+
   bool get isUpgradeAble => _compare(_remoteVersion, _localVersion) > 0;
 
   VersionProvider() {
@@ -29,7 +40,7 @@ class VersionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  setVersion(String val, String description, String urlVal) async {
+  setVersion(String val, String description, String urlVal, String cid) async {
     if (val.isEmpty) {
       return;
     }
@@ -51,7 +62,12 @@ class VersionProvider extends ChangeNotifier {
     _remoteVersion = val;
     _desc = description;
     _url = urlVal;
+    _cid = cid;
+    notifyListeners();
+  }
 
+  setDownProgress(double pro) {
+    _downProgress = pro;
     notifyListeners();
   }
 }

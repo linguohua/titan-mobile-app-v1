@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 
 public class MainActivity extends FlutterActivity {
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "MainActivity:";
 
     private static final String METHOD_CHANNEL = "titan/nativel2";
     private static final int PERMISSION_REQUEST_CODE = 1000;
@@ -39,16 +39,15 @@ public class MainActivity extends FlutterActivity {
     boolean mBound = false;
     private boolean mIsL2ServiceNeed2Stop; // use to stop service
     // use to execute service jsoncall method, not to block UI thread
-    private final ExecutorService  mExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //Start service
         Intent intent = new Intent(this, L2Service.class);
         intent.putExtra("titan", "startby_titan_app");
-
+        //JobSchedulerHelper.INSTANCE.scheduleJob(this);
         startL2Service(intent);
     }
 
@@ -69,12 +68,17 @@ public class MainActivity extends FlutterActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
         if (mBound) {
             mIsL2ServiceNeed2Stop = !mService.isKeepL2Service();
         }
-
         unbindService(connection);
         mBound = false;
     }
@@ -97,7 +101,7 @@ public class MainActivity extends FlutterActivity {
                 result.success("{\"code\":-1,\"msg\":\"service not bound\"}");
                 return;
             }
-
+            //      Log.d(TAG, "configureFlutterEngine :" + call.method);
             // This method is invoked on the main thread.
             if (call.method.equals("jsonCall")) {
                 mExecutor.execute(new Runnable() {
@@ -107,14 +111,25 @@ public class MainActivity extends FlutterActivity {
                         result.success(result2);
                     }
                 });
-            } else if(call.method.equals("setServiceStartupCmd")) {
+            } else if (call.method.equals("setServiceStartupCmd")) {
                 String args = call.argument("args");
                 mService.setServiceStartupCmd(args);
                 result.success("{\"code\":0}");
-            } else if(call.method.equals("setServiceLocale")) {
+            } else if (call.method.equals("setServiceLocale")) {
                 String args = call.argument("args");
                 mService.setServiceLocale(args);
                 result.success("{\"code\":0}");
+            } else if (call.method.equals("isEmulator")) {
+                EmulatorCheck emulatorCheck = EmulatorCheck.getInstance(this);
+                boolean isEmulator = emulatorCheck.isEmulator();
+                String name = emulatorCheck.checkFeaturesByHardware();
+                if (isEmulator) {
+                    // 处理模拟器环境
+                    result.success("{\"code\": true,\"msg\":\"" + name + "\"}");
+                } else {
+                    // 处理真实设备环境
+                    result.success("{\"code\": false,\"msg\":\"" + name + "\"}");
+                }
             } else {
                 result.notImplemented();
             }
@@ -180,6 +195,8 @@ public class MainActivity extends FlutterActivity {
 
     private void grantNotificationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+
+
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
             // In an educational UI, explain to the user why your app requires this
             // permission for a specific feature to behave as expected, and what

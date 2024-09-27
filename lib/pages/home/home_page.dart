@@ -1,19 +1,31 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:titan_app/config/appConfig.dart';
+import 'package:titan_app/mixin/base_view_tool.dart';
 import 'package:titan_app/providers/version_provider.dart';
 import 'package:titan_app/themes/colors.dart';
 import 'package:titan_app/utils/system_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../ads/ad_dialog.dart';
+import '../../ads/marquee_widget.dart';
 import '../../bridge/bridge_mgr.dart';
+import '../../config/constant.dart';
 import '../../l10n/generated/l10n.dart';
+import '../../providers/ads_provider.dart';
+import '../../providers/localization_provider.dart';
+import '../../utils/NetworkManager.dart';
+import '../../utils/shared_preferences.dart';
 import '../../utils/utility.dart';
 import '../../widgets/common_text_widget.dart';
+import '../../widgets/dialog/dialog_widget.dart';
 import '../../widgets/loading_indicator.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,11 +36,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, BaseViewTool {
   final double kImageSize = 300.w;
   double money = 0.0;
+
   //late VideoPlayerController _prepareController;
   late VideoPlayerController _runningController;
+
   // late Future<void> _initializePrepareVideoPlayerFuture;
   late Future<void> _initializeRunningVideoPlayerFuture;
 
@@ -36,11 +50,10 @@ class _HomePageState extends State<HomePage>
 
   Duration loopStart = const Duration(seconds: 3);
   Duration prepareStart = const Duration(seconds: 0);
-  // bool isDaemonRunning = false;
-  bool isDaemonOnline = false;
 
+  bool isDaemonRunning = false;
+  bool isDaemonOnline = false;
   int daemonCounter = 0;
-  bool isClickHandling = false;
   bool _isActivating = false;
   Timer? timer;
   bool isQuerying = false;
@@ -51,89 +64,37 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-
-    // isDaemonRunning = BridgeMgr().daemonBridge.isDaemonRunning;
     isDaemonOnline = BridgeMgr().daemonBridge.isDaemonOnline;
-
     _appLifecyclelistener = AppLifecycleListener(
       onResume: () => _handleTransition('resume'),
       onInactive: () => _handleTransition('inactive'),
       onRestart: () => _handleTransition('restart'),
-      // This fires for each state change. Callbacks above fire only for
-      // specific state transitions.
-      //onStateChange: _handleStateChange,
     );
-
-    // _prepareController =
-    //     VideoPlayerController.asset('assets/videos/prepare.mp4');
     _runningController =
         VideoPlayerController.asset('assets/videos/running.mp4');
-    // _prepareController.setLooping(true);
     _runningController.setLooping(true);
-    // _initializePrepareVideoPlayerFuture = _prepareController.initialize();
     _initializeRunningVideoPlayerFuture = _runningController.initialize();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AdDialog.adDialog(context, 0);
+
+      // DialogUtils.openIPMax5Dialog(
+      //     context, "The number of IPs exceeds the limit", onFunction: () {
+      //   BridgeMgr().daemonBridge.setIpErrorMsg(null);
+      // });
+
       BridgeMgr().minerBridge.minerInfo.addListener("income", "home_page", () {
         setState(() {
           money = BridgeMgr().minerBridge.minerInfo.todayIncome();
         });
       });
     });
-
+    _networkListen();
     _startActivation();
-  }
 
-  void _startActivation() {
-    if (_isActivating) {
-      return;
-    }
-
-    timer?.cancel();
-    timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) async {
-      await queryDaemonState();
+    Provider.of<LocalizationProvider>(context, listen: false).addListener(() {
+      AdDialog.adDialog(context, 0);
     });
-
-    BridgeMgr().minerBridge.startActivationg();
-    _updateAnimation();
-
-    _isActivating = true;
-  }
-
-  void _stopActivation() {
-    timer?.cancel();
-    BridgeMgr().minerBridge.stopActivation();
-
-    // _prepareController.pause();
-    _runningController.pause();
-
-    _isActivating = false;
-  }
-
-  void _handleTransition(String name) {
-    switch (name) {
-      case "resume":
-        _startActivation();
-        break;
-      case "inactive":
-        _stopActivation();
-        break;
-      case "restart":
-        _startActivation();
-        break;
-    }
-  }
-
-  void _updateAnimation() {
-    const Duration zero = Duration(seconds: 0);
-    _runningController.seekTo(zero);
-    _runningController.pause();
-    // _prepareController.seekTo(zero);
-    // _prepareController.pause();
-
-    if (isDaemonOnline) {
-      _runningController.play();
-    }
   }
 
   @override
@@ -155,15 +116,15 @@ class _HomePageState extends State<HomePage>
     super.build(context);
     final String versionName =
         Provider.of<VersionProvider>(context, listen: false).localVersion;
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Stack(
+          alignment: Alignment.topCenter,
           children: [
             Positioned(
               top: 144.h,
-              left: (MediaQuery.of(context).size.width - kImageSize - 40.w) /
+              left: (MediaQuery.of(context).size.width - kImageSize - 0.w) /
                   2, //40 buffer
               child: SizedBox(
                 width: kImageSize,
@@ -219,6 +180,26 @@ class _HomePageState extends State<HomePage>
                 ),
               ],
             ),
+            Consumer<AdsProvider>(
+              builder: (context, adsProvider, child) {
+                return adsProvider.banners.isEmpty
+                    ? Container()
+                    : Positioned(
+                        top: 30.h,
+                        right: 0,
+                        child: IconButton(
+                          onPressed: () {
+                            AdDialog.adDialog(context, 1);
+                          },
+                          icon: const Icon(
+                            Icons.notifications_sharp,
+                            color: Colors.white,
+                          ),
+                        ),
+                      );
+              },
+            ),
+            MyMarqueeWidget(),
           ],
         ),
       ),
@@ -229,9 +210,8 @@ class _HomePageState extends State<HomePage>
     if (!isDaemonOnline) {
       return;
     }
-
-    String url =
-        'https://test1.titannet.io/nodeidDetail?device_id=${BridgeMgr().daemonBridge.daemonCfgs.id()}';
+    var baseurl = AppConfig.nodeInfoURL;
+    String url = '$baseurl${BridgeMgr().daemonBridge.daemonCfgs.id()}';
     if (!await launchUrl(Uri.parse(url))) {
       throw Exception('Could not launch $url');
     }
@@ -278,6 +258,65 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  void _networkListen() {
+    NetworkManager().initialize();
+    NetworkManager().connectivityStream.listen((result) async {
+      openWifi(0);
+    });
+  }
+
+  void _startActivation() {
+    if (_isActivating) {
+      return;
+    }
+
+    timer?.cancel();
+    timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) async {
+      await queryDaemonState();
+    });
+
+    BridgeMgr().minerBridge.startActivationg();
+    _updateAnimation();
+
+    _isActivating = true;
+  }
+
+  void _stopActivation() {
+    timer?.cancel();
+    BridgeMgr().minerBridge.stopActivation();
+
+    // _prepareController.pause();
+    _runningController.pause();
+
+    _isActivating = false;
+  }
+
+  void _handleTransition(String name) {
+    switch (name) {
+      case "resume":
+        _startActivation();
+        break;
+      case "inactive":
+        _stopActivation();
+        break;
+      case "restart":
+        _startActivation();
+        break;
+    }
+  }
+
+  void _updateAnimation() {
+    const Duration zero = Duration(seconds: 0);
+    _runningController.seekTo(zero);
+    _runningController.pause();
+    // _prepareController.seekTo(zero);
+    // _prepareController.pause();
+
+    if (isDaemonOnline) {
+      _runningController.play();
+    }
+  }
+
   Widget _startPrepareNode(BuildContext context) {
     return Container(
       color: Colors.transparent,
@@ -313,7 +352,7 @@ class _HomePageState extends State<HomePage>
   Widget _startButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        handleStartStopClick(context);
+        openWifi(1);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: (!isDaemonOnline)
@@ -369,30 +408,20 @@ class _HomePageState extends State<HomePage>
     if (isQuerying) {
       return;
     }
-
-    // if is click by user, stop query
-    if (isClickHandling) {
-      return;
-    }
-
     isQuerying = true;
     String result;
-
     result = await BridgeMgr().daemonBridge.daemonState();
 
     debugPrint('~~~state call: $result');
-
     isQuerying = false;
 
     var jsonResult = jsonDecode(result);
     bool isOnline = false;
     bool isRunning = false;
-
     if (jsonResult["code"] == 0) {
-      isRunning = true;
       final data = jsonDecode(jsonResult["data"]);
-      bool online = data["online"];
-      isOnline = online;
+      isOnline = data["online"];
+      isRunning = data["running"];
 
       if (BridgeMgr().daemonBridge.daemonCfgs.id() == "") {
         await BridgeMgr().daemonBridge.loadDaemonConfig();
@@ -403,7 +432,9 @@ class _HomePageState extends State<HomePage>
         BridgeMgr().minerBridge.pullInfo();
       }
     }
-
+    if (isRunning && isOnline) {
+      DialogUtils.closeIpDialog();
+    }
     if (isDaemonOnline == isRunning && isDaemonOnline == isOnline) {
       return;
     }
@@ -421,25 +452,21 @@ class _HomePageState extends State<HomePage>
     }
 
     setState(() {
-      isDaemonOnline = isRunning;
+      isDaemonRunning = isRunning;
       isDaemonOnline = isOnline;
       _updateAnimation();
     });
+
+    openWifi(2);
   }
 
-  void handleStartStopClick(BuildContext context) async {
-    if (isClickHandling) {
-      return;
-    }
-
-    isClickHandling = true;
+  Future<void> _onAction() async {
     Map<String, dynamic> result;
-
     String action;
     final String indicatorMsg =
         isDaemonOnline ? S.of(context).stopping : S.of(context).starting;
-    LoadingIndicator.show(context, message: indicatorMsg);
 
+    LoadingIndicator.show(context, message: indicatorMsg);
     if (isDaemonOnline) {
       result = await BridgeMgr().daemonBridge.stopDaemon();
       action = "Stop daemon";
@@ -447,24 +474,139 @@ class _HomePageState extends State<HomePage>
       result = await BridgeMgr().daemonBridge.startDaemon();
       action = "Start daemon";
     }
-
     if (context.mounted) {
       LoadingIndicator.hide(context);
     }
 
-    isClickHandling = false;
-
-    debugPrint('start/stop call, action:$action, result: $result');
-
+    //debugPrint('start/stop call, action:$action, result: $result');
     if (result["bool"]) {
       setState(() {
         isDaemonOnline = !isDaemonOnline;
         _updateAnimation();
       });
     } else {
-      if (context.mounted) {
-        String msg = result["r"];
-        Indicators.showMessage(context, action, msg, null, null);
+      if (context.mounted && !isDaemonOnline && !isDaemonRunning) {
+        var ipError = BridgeMgr().daemonBridge.ipErrorMsg;
+        if (ipError.isNotEmpty) {
+          DialogUtils.openIPMax5Dialog(
+              context, BridgeMgr().daemonBridge.ipErrorMsg, onFunction: () {
+            BridgeMgr().daemonBridge.setIpErrorMsg(null);
+          });
+        } else {
+          String msg = result["r"];
+          Indicators.showMessage(context, action, msg, null, null);
+        }
+      }
+    }
+  }
+
+  /**
+   * 0: 网络监听；1 点击； 2 状态查询
+   */
+  Future<void> openWifi(int type) async {
+    bool isConnected = await NetworkManager().isConnected();
+
+    /// 没有网络
+    if (!isConnected) {
+      showToast(S.of(context).networkNotConnected);
+      return;
+    }
+    bool isConnectedToWiFi = await NetworkManager().isConnectedToWiFi();
+    var has4gRun = TTSharedPreferences.getInt(Constant.has4gRun) ?? 0;
+
+    debugPrint(
+        "network:is isWiFi  type=$type..$isConnectedToWiFi...$isDaemonOnline.....$has4gRun");
+
+    if (isConnectedToWiFi) {
+      DialogUtils.closeWifiDialog();
+    }
+
+    void showWifiDialog(
+        String message, String cancelText, Function(bool) onCall) {
+      DialogUtils.wifiDialog(
+        context,
+        message,
+        cancel: cancelText,
+        onCall: onCall,
+        onDimssCall: () {},
+      );
+    }
+
+    void handleDefaultCase() {
+      showWifiDialog(
+        S.of(context).usingMobileData,
+        S.of(context).prohibit,
+        (isStart) {
+          if (!isStart) {
+            _onAction();
+          }
+        },
+      );
+    }
+
+    void handleProhibitedCase() {
+      _onAction();
+    }
+
+    if (type == 0) {
+      if (!isConnectedToWiFi && isDaemonOnline) {
+        if (has4gRun == 0) {
+          handleDefaultCase();
+        } else if (has4gRun == 2) {
+          handleProhibitedCase();
+        }
+      }
+    } else if (type == 1) {
+      if (!isConnectedToWiFi) {
+        if (has4gRun == 0) {
+          //默认 : 如果没有启动：提示启动流量信息
+          if (!isDaemonOnline) {
+            showWifiDialog(
+              S.of(context).usingMobileData,
+              S.of(context).cancel,
+              (isStart) {
+                if (isStart) {
+                  _onAction();
+                }
+              },
+            );
+          } else {
+            // 如果已经启动：停止操作
+            _onAction();
+          }
+        } else if (has4gRun == 1) {
+          // 允许
+          // isDaemonOnline：判断是否是启动和断开
+          _onAction();
+        } else if (has4gRun == 2) {
+          //禁止 ：如果没有启动：启动时提示 设置信息
+          if (!isDaemonOnline) {
+            showWifiDialog(
+              S.of(context).currentResource,
+              S.of(context).cancel,
+              (isStart) {
+                if (isStart) {
+                  // 允许：去启动
+                  _onAction();
+                }
+              },
+            );
+          } else {
+            ///isDaemonOnline： 如果启动了则停止
+            _onAction();
+          }
+        }
+      } else {
+        _onAction();
+      }
+    } else if (type == 2) {
+      ///
+      if (!isConnectedToWiFi && isDaemonOnline) {
+        if (has4gRun == 0) {
+          handleDefaultCase();
+        } else if (has4gRun == 2) {
+          handleProhibitedCase();
+        }
       }
     }
   }

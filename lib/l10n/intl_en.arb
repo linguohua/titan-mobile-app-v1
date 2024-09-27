@@ -1,5 +1,4 @@
 {
-
   "welcome_to_titan": "Welcome to Titan",
   "forget_password": "Forgotten password",
   "login": "Login",
@@ -8,7 +7,6 @@
   "sender_decoder": "Send code",
   "sent": "Sent",
   "password": "Password",
-
   "set_password": "Set a password",
   "confirm_password": "Confirm password",
   "invitation_code": "Invitation Code (optional)",
@@ -19,11 +17,8 @@
   "privacy_policy_2": "《Titan's Use Agreement》",
   "privacy_policy": "Privacy Agreement",
   "verification_drag_tip": "Please press and hold the slider and drag it to the far right",
-
-
   "usage_protocol": "Utilization Agreement",
   "privacy_content": "We would like to remind you (the User) that before registering as a User, please read this User Registration and Use of App Privacy Agreement (hereinafter referred to as the \"Agreement\") carefully to ensure that you fully understand the terms and conditions of this Agreement. Please read it carefully and choose to accept or not accept this Agreement. Unless you accept all the terms and conditions of this Agreement, you are not authorized to register, log in or use the services covered by this Agreement. Your registration, login, use and other behavior will be regarded as the acceptance of this Agreement, and agree to be bound by the terms of this Agreement. This Agreement governs the rights and obligations of Lazhong Yun (Beijing) Network Co., Ltd (hereinafter referred to as \"Lawyer to the\") and the User with respect to the Lawyer to the software services (hereinafter referred to as \"Services\"). The User is the individual or organization that registers, logs in, and uses the Service. This Agreement may be updated by Lawyer to Lawyer at any time, and the updated Terms of Agreement will replace the original Terms of Agreement once published without further notice, and the User may review the latest version of the Terms of Agreement in the App. After the modification of the terms of the agreement, if the user does not accept the modified terms, please immediately stop using the services provided by the lawyer to the user to continue to use the services provided by the lawyer to the user will be deemed to accept the \u2028 a, account registration 1, the user needs to register a lawyer to the App account before using this service. Lawyer to the App account should use a cell phone number, or lawyer to the binding registration, please use the user has not yet with the lawyer to the App account binding cell phone number, as well as has not been lawyer to the blocked cell phone number under this agreement to register lawyer to the App account. Lawyer to the can according to the user demand or product needs to account registration and binding of the way to change, without prior notice to the user.     2, in view of the lawyer to the app account binding registration method, you agree to the lawyer to the registration will allow your cell phone number and mobile device identification code and other information for registration.",
-
   "today_earnings": "Today's Est. Rewards",
   "ttn": "TTN",
   "email": "Email Address",
@@ -34,23 +29,19 @@
   "initializing": "Initializing",
   "starting": "Starting",
   "stopping": "Stopping",
-
-
   "to_update": "to upgrade",
   "new_version": "found new version",
-
   "tab_home": "Home",
   "tab_wallet": "wallet",
   "tab_history": "History",
   "tab_setting": "Settings",
-
-  "setting_huygens_testnet": "Huygens Testnet",
+  "setting_huygens_testnet": "Doc",
   "about_titan": "About Titan",
   "login_account": "Login account",
   "wallet_address": "Wallet Address",
   "logout": "Logout",
   "setting_change_language": "Languages",
-  "setting_language_zh": "ZH",
+  "setting_language_zh": "中文",
   "setting_language_en": "EN",
   "setting_twitter": "Twitter",
   "setting_discord": "Discord",
@@ -63,21 +54,16 @@
   "setting_update_now": "Update Now",
   "setting_update_info_1": "Dear User,\nThis update provides important bug fixes and security updates which include {version}, and we recommend all users to update as soon as possible.",
   "setting_update_info_2": "For information on the security content of Titan Network software updates, please visit the following website:",
-
-
   "history_title": "Node Records",
   "history_status": "Status：",
   "history_environment": "Environment：",
   "history_time": "Time：",
-
   "wallet_get_identity_title": "01.Request an Identity Code",
   "wallet_get_identity_desc": "Welcome to Titan Network! Please request an identity code for you device, and claim your rewards after binding the code.",
   "wallet_get_identity_button": "Request an Identity Code",
-
   "wallet_input_identity_title": "02.Enter Your Identity Code",
   "wallet_input_identity_desc": "Please bind your identity code asap to avoid losing rewards.",
   "wallet_input_identity_button": "Bind Your Identity Code",
-
   "wallet_verify_information": "Verify Information",
   "wallet_account": "Account",
   "wallet_email_address": "Email Address",
@@ -86,7 +72,6 @@
   "wallet_bound": "Bound",
   "wallet_user": "User",
   "wallet_device_management": "Device Management",
-
   "error_device_has_bound": "Device Already Bound",
   "error_signature": "Invalid Signature",
   "error_parameter": "Invalid Parameters",
@@ -97,12 +82,53 @@
   "error_node_not_exists": "The node is not logged in",
   "error_input_empty": "input should not be empty",
   "error_identity_format_invalid": "identity's format is invalid",
-
   "failed_stop": "Failed to Stop",
   "failed_start": "Startup failed",
   "failed_bind": "Bind failed",
-  
   "belongs": "Titan Account related to identity code",
   "bound": "Bound",
-  "back": "Back"
+  "back": "Back",
+  "confirm": "Confirm",
+  "cancel": "Cancel",
+  "submit": "Submit",
+  "gentleReminder": "Gentle Reminder",
+  "disableNode": "You are currently using mobile data. Do you want to disable the node?",
+  "enableNode": "You are currently using mobile data. Do you want to enable the node?",
+  "networkNotConnected": "The current network is not connected. Please check your network",
+  "oneCopy": "One click copy",
+  "copiedPasteboard": "Copied to Pasteboard",
+  "bindingErrorNode": "Binding the identity code requires starting the node and running the node",
+  "startNodeContinue": "Start node and continue",
+  "download_progress": "Download progress",
+  "download_installation_package": "Downloading installation package",
+  "noLongerPrompt": "Do you want to no longer prompt",
+  "t24TimeNotShow": "Not displayed within 24 hours",
+  "problemFeedback": "Problem Feedback",
+  "submitBugs": "Submit bugs",
+  "history": "History",
+  "nodeId": "NodeId",
+  "email": "Email",
+  "yourQuestion": "Please describe your issue, we will handle it as soon as possible and reply",
+  "questionDsc": "Problem description",
+  "telegramDsc": "Please enter Telegram",
+  "feedbackDes": "To process your feedback faster, please select the feedback type",
+  "pleasePicture": "Please add a picture",
+  "questionDsc2": "Please bind your ID code first",
+   "questionDsc3": "description",
+  "submittedOk": "Submitted successfully",
+  "submissionFailed": "Submission failed",
+  "updateTime": "Update time",
+    "pending": "Pending",
+    "processed": "Processed",
+     "reward": "Reward",
+  "nothistory": "There is currently no historical record",
+  "zyanSSet": "Resource Settings",
+  "usingMobileData": "Allow nodes to run while using mobile data",
+  "allowrun": "Allow to run",
+  "prohibit": "Prohibit operation",
+  "zyanSSetok": "Resource settings successful",
+  "currentResource": "Prohibit running when the current resource is set to nodes using mobile data",
+  "stillrunning": "Still running",
+  "devicenotexists": "The device does not exist"
+
 }

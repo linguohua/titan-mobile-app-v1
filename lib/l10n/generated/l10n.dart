@@ -231,7 +231,7 @@ abstract class S {
   /// No description provided for @email.
   ///
   /// In en, this message translates to:
-  /// **'Email Address'**
+  /// **'Email'**
   String get email;
 
   /// No description provided for @current_device_ID.
@@ -315,7 +315,7 @@ abstract class S {
   /// No description provided for @setting_huygens_testnet.
   ///
   /// In en, this message translates to:
-  /// **'Huygens Testnet'**
+  /// **'Doc'**
   String get setting_huygens_testnet;
 
   /// No description provided for @about_titan.
@@ -351,7 +351,7 @@ abstract class S {
   /// No description provided for @setting_language_zh.
   ///
   /// In en, this message translates to:
-  /// **'ZH'**
+  /// **'中文'**
   String get setting_language_zh;
 
   /// No description provided for @setting_language_en.
@@ -629,6 +629,252 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Back'**
   String get back;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @gentleReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle Reminder'**
+  String get gentleReminder;
+
+  /// No description provided for @disableNode.
+  ///
+  /// In en, this message translates to:
+  /// **'You are currently using mobile data. Do you want to disable the node?'**
+  String get disableNode;
+
+  /// No description provided for @enableNode.
+  ///
+  /// In en, this message translates to:
+  /// **'You are currently using mobile data. Do you want to enable the node?'**
+  String get enableNode;
+
+  /// No description provided for @networkNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'The current network is not connected. Please check your network'**
+  String get networkNotConnected;
+
+  /// No description provided for @oneCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'One click copy'**
+  String get oneCopy;
+
+  /// No description provided for @copiedPasteboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to Pasteboard'**
+  String get copiedPasteboard;
+
+  /// No description provided for @bindingErrorNode.
+  ///
+  /// In en, this message translates to:
+  /// **'Binding the identity code requires starting the node and running the node'**
+  String get bindingErrorNode;
+
+  /// No description provided for @startNodeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Start node and continue'**
+  String get startNodeContinue;
+
+  /// No description provided for @download_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Download progress'**
+  String get download_progress;
+
+  /// No description provided for @download_installation_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading installation package'**
+  String get download_installation_package;
+
+  /// No description provided for @noLongerPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to no longer prompt'**
+  String get noLongerPrompt;
+
+  /// No description provided for @t24TimeNotShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not displayed within 24 hours'**
+  String get t24TimeNotShow;
+
+  /// No description provided for @problemFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Problem Feedback'**
+  String get problemFeedback;
+
+  /// No description provided for @submitBugs.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit bugs'**
+  String get submitBugs;
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @nodeId.
+  ///
+  /// In en, this message translates to:
+  /// **'NodeId'**
+  String get nodeId;
+
+  /// No description provided for @yourQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Please describe your issue, we will handle it as soon as possible and reply'**
+  String get yourQuestion;
+
+  /// No description provided for @questionDsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Problem description'**
+  String get questionDsc;
+
+  /// No description provided for @telegramDsc.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter Telegram'**
+  String get telegramDsc;
+
+  /// No description provided for @feedbackDes.
+  ///
+  /// In en, this message translates to:
+  /// **'To process your feedback faster, please select the feedback type'**
+  String get feedbackDes;
+
+  /// No description provided for @pleasePicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a picture'**
+  String get pleasePicture;
+
+  /// No description provided for @questionDsc2.
+  ///
+  /// In en, this message translates to:
+  /// **'Please bind your ID code first'**
+  String get questionDsc2;
+
+  /// No description provided for @questionDsc3.
+  ///
+  /// In en, this message translates to:
+  /// **'description'**
+  String get questionDsc3;
+
+  /// No description provided for @submittedOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted successfully'**
+  String get submittedOk;
+
+  /// No description provided for @submissionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Submission failed'**
+  String get submissionFailed;
+
+  /// No description provided for @updateTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Update time'**
+  String get updateTime;
+
+  /// No description provided for @pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get pending;
+
+  /// No description provided for @processed.
+  ///
+  /// In en, this message translates to:
+  /// **'Processed'**
+  String get processed;
+
+  /// No description provided for @reward.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward'**
+  String get reward;
+
+  /// No description provided for @nothistory.
+  ///
+  /// In en, this message translates to:
+  /// **'There is currently no historical record'**
+  String get nothistory;
+
+  /// No description provided for @zyanSSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource Settings'**
+  String get zyanSSet;
+
+  /// No description provided for @usingMobileData.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow nodes to run while using mobile data'**
+  String get usingMobileData;
+
+  /// No description provided for @allowrun.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow to run'**
+  String get allowrun;
+
+  /// No description provided for @prohibit.
+  ///
+  /// In en, this message translates to:
+  /// **'Prohibit operation'**
+  String get prohibit;
+
+  /// No description provided for @zyanSSetok.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource settings successful'**
+  String get zyanSSetok;
+
+  /// No description provided for @currentResource.
+  ///
+  /// In en, this message translates to:
+  /// **'Prohibit running when the current resource is set to nodes using mobile data'**
+  String get currentResource;
+
+  /// No description provided for @stillrunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Still running'**
+  String get stillrunning;
+
+  /// No description provided for @devicenotexists.
+  ///
+  /// In en, this message translates to:
+  /// **'The device does not exist'**
+  String get devicenotexists;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

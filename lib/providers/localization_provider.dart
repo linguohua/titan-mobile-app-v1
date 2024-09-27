@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:titan_app/ffi/nativel2.dart';
@@ -9,7 +11,14 @@ class LocalizationProvider extends ChangeNotifier {
   late Locale _local;
 
   LocalizationProvider() {
-    _local = LocalizationProvider.kLocalEn;
+    Locale deviceLocale = window.locale;
+    String languageCode = deviceLocale.languageCode;
+    String? countryCode = deviceLocale.countryCode;
+    if (languageCode == "zh" || countryCode == "CN") {
+      _local = LocalizationProvider.kLocalZh;
+    } else {
+      _local = LocalizationProvider.kLocalEn;
+    }
     _loadFromPreferences();
   }
 

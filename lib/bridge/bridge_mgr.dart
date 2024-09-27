@@ -1,10 +1,11 @@
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:path/path.dart' as path;
 
-import 'bridge_miner.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+
 import 'bridge_daemon.dart';
+import 'bridge_miner.dart';
 import 'log.dart';
 
 class BridgeMgr {
@@ -20,7 +21,9 @@ class BridgeMgr {
   static late String _appVersion;
 
   DaemonBridge get daemonBridge => _dBridge;
+
   MinerBridge get minerBridge => _mBridge;
+
   String get appDocPath => _appDocPath;
 
   static Future<void> init() async {

@@ -1,15 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:titan_app/pages/home/emulator_page.dart';
 import 'package:titan_app/pages/home/home_page.dart';
-// import 'package:titan_app/pages/login/login_page.dart';
 import 'package:titan_app/pages/logs/logs_page.dart';
 import 'package:titan_app/pages/setting/setting_page.dart';
 import 'package:titan_app/pages/wallet/wallet_binding_page.dart';
+import 'package:titan_app/providers/ads_provider.dart';
 import 'package:titan_app/providers/auth_provider.dart';
 import 'package:titan_app/providers/localization_provider.dart';
 import 'package:titan_app/providers/version_provider.dart';
@@ -19,6 +21,8 @@ import 'package:titan_app/widgets/tab_bottom_bar.dart';
 import 'package:titan_app/widgets/update_red_point.dart';
 
 import 'bridge/bridge_mgr.dart';
+import 'command/launch_before.dart';
+import 'ffi/nativel2.dart';
 import 'l10n/generated/l10n.dart';
 
 Future<void> main() async {
@@ -27,11 +31,20 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
-
-  await BridgeMgr.init();
-  // https://stackoverflow.com/questions/69851578/why-does-my-flutter-page-sometimes-not-render-completely-in-release-version
+  await LaunchBeforeCommand.setUp();
   await Future.delayed(const Duration(milliseconds: 300));
-  runApp(const AppHomePage());
+
+  var str = await NativeL2().isEmulator();
+  Map<String, dynamic> jsonResponse = jsonDecode(str!);
+
+  // 获取 code 的值
+  bool code = jsonResponse['code'];
+  String msg = jsonResponse['msg'];
+  if (code) {
+    runApp(MyApp(msg));
+  } else {
+    runApp(const AppHomePage());
+  }
 }
 
 class AppHomePage extends StatefulWidget {
@@ -40,6 +53,8 @@ class AppHomePage extends StatefulWidget {
   @override
   State<AppHomePage> createState() => _AppHomePageState();
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class _AppHomePageState extends State<AppHomePage> {
   final PageController _controller = PageController();
@@ -71,12 +86,12 @@ class _AppHomePageState extends State<AppHomePage> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(375, 812));
     SystemChrome.setSystemUIOverlayStyle(systemUiOverlayDarkStyle);
-
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
         ChangeNotifierProvider(create: (context) => LocalizationProvider()),
         ChangeNotifierProvider(create: (context) => VersionProvider()),
+        ChangeNotifierProvider(create: (context) => AdsProvider()),
       ],
       child: Consumer2<AuthProvider, LocalizationProvider>(
         builder: (context, auth, localization, _) {
@@ -85,6 +100,7 @@ class _AppHomePageState extends State<AppHomePage> {
               FocusManager.instance.primaryFocus?.unfocus();
             },
             child: MaterialApp(
+              navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               theme: darkTheme,
               localizationsDelegates: const [
@@ -103,33 +119,23 @@ class _AppHomePageState extends State<AppHomePage> {
     );
   }
 
-  // Widget _login(BuildContext context) {
-  //   return Scaffold(
-  //       extendBody: true,
-  //       body: SafeArea(
-  //         top: false,
-  //         child: PageView(
-  //           controller: _controller,
-  //           physics: _neverScroll,
-  //           children: const [
-  //             LoginPage(),
-  //           ],
-  //         ),
-  //       ));
-  // }
-
   Widget _home(BuildContext context, LocalizationProvider localization) {
     return Scaffold(
       extendBody: true,
       body: PageView(
         controller: _controller,
         physics: _neverScroll,
-        children: const [
-          HomePage(),
-          WalletBindingPage(),
-          // WalletInformationPage(),
-          LogsPage(),
-          SettingPage(),
+        children: [
+          const HomePage(),
+          const WalletBindingPage(),
+          // LogsPage(),
+          SettingPage(
+            onBackCall: () {
+              setState(() {
+                _onTapBottomNav(0);
+              });
+            },
+          ),
         ],
       ),
       bottomNavigationBar: _buildBottomNav(context),
@@ -148,9 +154,13 @@ class _AppHomePageState extends State<AppHomePage> {
           onItemLongTap: _onItemLongTap,
         ),
         Positioned(
-            left: 165, top: 16, child: UpdateRedPoint(isShow: !_isNodeBound)),
+            left: 175.w,
+            top: 16.h,
+            child: UpdateRedPoint(isShow: !_isNodeBound)),
         Positioned(
-            right: 35, top: 16, child: UpdateRedPoint(isShow: !isLatestVersion))
+            right: 55.w,
+            top: 16.h,
+            child: UpdateRedPoint(isShow: !isLatestVersion))
       ],
     );
   }
@@ -158,6 +168,7 @@ class _AppHomePageState extends State<AppHomePage> {
   void _onTapBottomNav(int index) {
     _controller.jumpToPage(index);
     _pageIndex = index;
+    setState(() {});
   }
 
   void _onItemLongTap(BuildContext context, int index) {}

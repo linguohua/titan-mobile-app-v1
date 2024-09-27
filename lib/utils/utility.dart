@@ -43,56 +43,57 @@ class ListenAble {
 }
 
 class Indicators {
-  static void showMessage(BuildContext context, String title, String body,
-      Image? image, Function? callback) {
+  static void showMessage(BuildContext _context, String title, String body,
+      Image? image, Function? callback,
+      {Function? onInit}) {
     final Image picture = image ?? Image.asset('assets/images/error.png');
 
-    AlertDialog alert = AlertDialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      content: Container(
-          width: 300,
-          height: 400,
-          decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 24, 24, 24),
-              borderRadius: BorderRadius.circular(20)),
-          child: Column(
-            children: [
-              Expanded(flex: 2, child: picture),
-              Expanded(
-                  flex: 1,
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
-                  )),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  body,
-                  style: const TextStyle(fontSize: 13, color: Colors.white),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: ConfirmButton(
-                  text: S.of(context).back,
-                  callback: () {
-                    if (callback != null) {
-                      callback();
-                    }
-
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ],
-          )),
-    );
     showDialog(
       barrierDismissible: false,
-      context: context,
+      context: _context,
       builder: (BuildContext context) {
-        return alert;
+        onInit?.call(context);
+        return AlertDialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          content: Container(
+              width: 300,
+              height: 400,
+              decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 24, 24, 24),
+                  borderRadius: BorderRadius.circular(20)),
+              child: Column(
+                children: [
+                  Expanded(flex: 2, child: picture),
+                  Expanded(
+                      flex: 1,
+                      child: Text(
+                        title,
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                      )),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      body,
+                      style: const TextStyle(fontSize: 13, color: Colors.white),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: ConfirmButton(
+                      text: S.of(context).back,
+                      callback: () {
+                        if (callback != null) {
+                          callback();
+                        }
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ],
+              )),
+        );
       },
     );
   }

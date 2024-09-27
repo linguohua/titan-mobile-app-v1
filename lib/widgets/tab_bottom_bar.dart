@@ -25,7 +25,7 @@ class _TabBottomBarState extends State<TabBottomBar> {
   List<String> get bottomBar => [
         S.of(context).tab_home,
         S.of(context).tab_wallet,
-        S.of(context).tab_history,
+        // S.of(context).tab_history,
         S.of(context).tab_setting,
       ];
 
@@ -36,13 +36,14 @@ class _TabBottomBarState extends State<TabBottomBar> {
   List<Image> get bottomBarActiveIcon => [
         createTabImage("assets/images/tab_home_active.png"),
         createTabImage("assets/images/tab_wallet_active.png"),
-        createTabImage("assets/images/tab_log_active.png"),
+        // createTabImage("assets/images/tab_log_active.png"),
         createTabImage("assets/images/tab_setting_active.png"),
       ];
+
   List<Image> get bottomBarIcon => [
         createTabImage("assets/images/tab_home_normal.png"),
         createTabImage("assets/images/tab_wallet_normal.png"),
-        createTabImage("assets/images/tab_log_normal.png"),
+        // createTabImage("assets/images/tab_log_normal.png"),
         createTabImage("assets/images/tab_setting_normal.png"),
       ];
   int _position = 0;
@@ -50,11 +51,12 @@ class _TabBottomBarState extends State<TabBottomBar> {
   @override
   void initState() {
     super.initState();
-    _position = widget.initPosition;
   }
 
   @override
   Widget build(BuildContext context) {
+    _position = widget.initPosition;
+
     return Wrap(
       children: [
         Container(
